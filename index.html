@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Engineer Connect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="step">Step 1 of 2</div>
+      <h1>What kind of engineer are you?</h1>
+      <p>Pick the area you work in. You can change it any time.</p>
+    </section>
+
+    <div class="choices" id="disciplines"></div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    // Build one card per discipline. Clicking a card goes to the goals page.
+    document.getElementById("disciplines").innerHTML = Object.keys(DISCIPLINES).map(function (key) {
+      var d = DISCIPLINES[key];
+      return '<a class="choice" href="goals.html?d=' + key + '">' +
+        '<div class="icon">' + d.icon + '</div>' +
+        '<h2>' + d.name + '</h2>' +
+        '<p>' + d.blurb + '</p></a>';
+    }).join("");
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+// Engineer Connect: shared code for every page.
+// For now everything is saved in the browser (localStorage). Later this can
+// be swapped for a real server so engineers on different computers see each other.
+
+var DISCIPLINES = {
+  mechanical: { name: "Mechanical", icon: "⚙️", blurb: "Machines, design, manufacturing and thermal systems." },
+  electrical: { name: "Electrical", icon: "⚡", blurb: "Power, electronics, controls and embedded systems." },
+  chemical:   { name: "Chemical",   icon: "⚗️", blurb: "Processes, materials, reactions and plant design." },
+  civil:      { name: "Civil",      icon: "🏗️", blurb: "Structures, infrastructure, geotechnics and water." },
+  aerospace:  { name: "Aerospace",  icon: "✈️", blurb: "Aircraft, spacecraft, propulsion and aerodynamics." },
+  software:   { name: "Software",   icon: "💻", blurb: "Code, data, automation and engineering tools." }
+};
+
+// ---------- Saving and loading ----------
+function load(key, fallback) {
+  try {
+    var value = localStorage.getItem("ec_" + key);
+    return value ? JSON.parse(value) : fallback;
+  } catch (e) { return fallback; }
+}
+function save(key, value) {
+  try { localStorage.setItem("ec_" + key, JSON.stringify(value)); } catch (e) {}
+}
+
+// The discipline the user picked on the home page.
+function currentDiscipline() {
+  var fromUrl = new URLSearchParams(location.search).get("d");
+  if (fromUrl && DISCIPLINES[fromUrl]) { save("discipline", fromUrl); return fromUrl; }
+  var saved = load("discipline", null);
+  return DISCIPLINES[saved] ? saved : null;
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+// Shows the chosen discipline in the top bar, with a link to change it.
+function showDisciplineChip(d) {
+  var chip = document.getElementById("discipline-chip");
+  if (!chip || !d) return;
+  chip.innerHTML = DISCIPLINES[d].icon + " " + DISCIPLINES[d].name + " · change";
+  chip.href = "index.html";
+  chip.hidden = false;
+}
+
+// Filter tabs: "All" plus one per discipline.
+function buildTabs(container, selected, onChange) {
+  var keys = ["all"].concat(Object.keys(DISCIPLINES));
+  container.innerHTML = keys.map(function (k) {
+    var label = k === "all" ? "All" : DISCIPLINES[k].name;
+    return '<button class="tab' + (k === selected ? " active" : "") + '" data-key="' + k + '">' + label + "</button>";
+  }).join("");
+  container.onclick = function (e) {
+    var btn = e.target.closest(".tab");
+    if (!btn) return;
+    container.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("active", t === btn); });
+    onChange(btn.dataset.key);
+  };
+}
+
+// ---------- Starter content so the pages are not empty ----------
+var SAMPLE_IDEAS = [
+  { id: 1, discipline: "mechanical", title: "Low-cost vibration monitor for workshop machines", body: "Clip-on accelerometer that warns before bearings fail. Looking for help with the sensor mounting and data analysis.", tags: ["sensors", "maintenance"], author: "Priya S.", votes: 12 },
+  { id: 2, discipline: "electrical", title: "Open-source battery management board", body: "Modular BMS for small electric vehicles and e-bikes. Need someone to review the balancing circuit.", tags: ["batteries", "PCB"], author: "Tom H.", votes: 9 },
+  { id: 3, discipline: "chemical", title: "Recycling waste heat from small breweries", body: "Heat exchanger design to reuse wort-boiling heat for cleaning water. Seeking a mechanical partner.", tags: ["energy", "heat transfer"], author: "Lena M.", votes: 7 },
+  { id: 4, discipline: "civil", title: "Sensor network for ageing footbridges", body: "Cheap strain gauges and a dashboard so councils can spot problems early.", tags: ["structures", "IoT"], author: "Marcus O.", votes: 5 },
+  { id: 5, discipline: "aerospace", title: "3D-printed drone frame stress testing", body: "Comparing infill patterns for strength vs weight. Would love lab access or FEA help.", tags: ["3D printing", "FEA"], author: "Aisha K.", votes: 8 },
+  { id: 6, discipline: "software", title: "Plain-English tolerance stack-up calculator", body: "A web tool that explains each step of a tolerance stack so apprentices can learn from it.", tags: ["tools", "education"], author: "Dan R.", votes: 11 }
+];
+
+var SAMPLE_PEOPLE = [
+  { id: 1, name: "Priya Shah", role: "Design Engineer", discipline: "mechanical", location: "Birmingham", skills: ["SolidWorks", "GD&T", "Sheet metal"], looking: "Collaborators for a condition-monitoring project" },
+  { id: 2, name: "Tom Hughes", role: "Electronics Engineer", discipline: "electrical", location: "Bristol", skills: ["PCB design", "Power electronics", "C"], looking: "Mechanical partner for enclosures" },
+  { id: 3, name: "Lena Müller", role: "Process Engineer", discipline: "chemical", location: "Leeds", skills: ["Aspen HYSYS", "Heat exchangers", "HAZOP"], looking: "Mentoring graduate engineers" },
+  { id: 4, name: "Marcus Owusu", role: "Structural Engineer", discipline: "civil", location: "London", skills: ["Steel design", "Eurocodes", "Revit"], looking: "Sensor and software people for bridge monitoring" },
+  { id: 5, name: "Aisha Khan", role: "Aerospace Engineer", discipline: "aerospace", location: "Derby", skills: ["ANSYS", "Composites", "CFD"], looking: "Access to a test rig" },
+  { id: 6, name: "Dan Reid", role: "Software Engineer", discipline: "software", location: "Manchester", skills: ["Python", "Web apps", "Automation"], looking: "Engineers with problems worth automating" },
+  { id: 7, name: "Grace Liu", role: "Manufacturing Engineer", discipline: "mechanical", location: "Coventry", skills: ["Lean", "Welding", "CNC"], looking: "Swapping shop-floor improvement ideas" },
+  { id: 8, name: "Sam Patel", role: "Controls Engineer", discipline: "electrical", location: "Sheffield", skills: ["PLC", "SCADA", "Motor drives"], looking: "Side projects in robotics" }
+];

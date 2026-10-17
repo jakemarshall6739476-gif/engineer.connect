@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Engineer Connect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="step">Step 2 of 2</div>
+      <h1>What do you want to get out of Engineer Connect?</h1>
+      <p id="subtitle"></p>
+    </section>
+
+    <div class="choices two">
+      <a class="choice" href="ideas.html">
+        <div class="icon">💡</div>
+        <h2>Ideas</h2>
+        <p>Share project ideas, get feedback, and find people to build them with.</p>
+      </a>
+      <a class="choice" href="connections.html">
+        <div class="icon">🤝</div>
+        <h2>Connections</h2>
+        <p>Find engineers in your field and beyond, and grow your network.</p>
+      </a>
+    </div>
+
+    <a class="back" href="index.html">← Choose a different area</a>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    var d = currentDiscipline();
+    if (!d) {
+      location.href = "index.html"; // no area chosen yet
+    } else {
+      showDisciplineChip(d);
+      document.getElementById("subtitle").textContent =
+        "Great, you're in " + DISCIPLINES[d].name + " engineering. Where would you like to start?";
+    }
+  </script>
+</body>
+</html>

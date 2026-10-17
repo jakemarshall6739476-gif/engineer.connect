@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connections · Engineer Connect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>🤝 Connections</h1>
+      <p>Find engineers to learn from, work with, or swap ideas with.</p>
+    </section>
+
+    <div class="toolbar">
+      <div class="tabs" id="tabs"></div>
+      <input type="search" id="search" placeholder="Search by name, skill or location…">
+    </div>
+    <div class="grid" id="people"></div>
+
+    <a class="back" href="goals.html">← Back to options</a>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    var me = currentDiscipline();
+    showDisciplineChip(me);
+
+    var requested = load("requested", []);
+    var filter = me || "all";
+
+    function initials(name) {
+      return name.split(" ").map(function (p) { return p[0]; }).join("").slice(0, 2);
+    }
+
+    function render() {
+      var q = document.getElementById("search").value.toLowerCase();
+      var list = SAMPLE_PEOPLE
+        .filter(function (p) { return filter === "all" || p.discipline === filter; })
+        .filter(function (p) { return (p.name + " " + p.role + " " + p.location + " " + p.skills.join(" ")).toLowerCase().indexOf(q) !== -1; });
+
+      document.getElementById("people").innerHTML = list.length ? list.map(function (p) {
+        var sent = requested.indexOf(p.id) !== -1;
+        return '<article class="card">' +
+          '<div class="person"><div class="avatar">' + initials(p.name) + "</div>" +
+          "<div><h3>" + p.name + '</h3><div class="meta">' + p.role + " · " + p.location + "</div></div></div>" +
+          '<div class="meta">' + DISCIPLINES[p.discipline].icon + " " + DISCIPLINES[p.discipline].name + "</div>" +
+          "<p><strong>Looking for:</strong> " + p.looking + "</p>" +
+          '<div class="tags">' + p.skills.map(function (s) { return '<span class="tag">' + s + "</span>"; }).join("") + "</div>" +
+          '<div class="card-foot"><span></span>' +
+          '<button class="btn ' + (sent ? "secondary" : "") + '" data-connect="' + p.id + '">' + (sent ? "✓ Request sent" : "Connect") + "</button></div>" +
+          "</article>";
+      }).join("") : '<div class="empty">No engineers match that search yet.</div>';
+    }
+
+    buildTabs(document.getElementById("tabs"), filter, function (key) { filter = key; render(); });
+    document.getElementById("search").oninput = render;
+
+    // Send / cancel a connection request
+    document.getElementById("people").onclick = function (e) {
+      var btn = e.target.closest("[data-connect]");
+      if (!btn) return;
+      var id = Number(btn.dataset.connect);
+      var at = requested.indexOf(id);
+      if (at === -1) requested.push(id); else requested.splice(at, 1);
+      save("requested", requested);
+      render();
+    };
+
+    render();
+  </script>
+</body>
+</html>

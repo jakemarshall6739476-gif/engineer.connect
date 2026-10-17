@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ideas · Engineer Connect</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>💡 Ideas</h1>
+      <p>Share what you're working on and back the ideas you like.</p>
+    </section>
+
+    <form class="panel" id="idea-form">
+      <h2>Share an idea</h2>
+      <label for="title">Title</label>
+      <input id="title" required maxlength="100" placeholder="e.g. Cheaper way to test weld quality">
+      <label for="body">Describe it</label>
+      <textarea id="body" required maxlength="600" placeholder="What's the problem, and what kind of help are you after?"></textarea>
+      <label for="tags">Tags (separate with commas)</label>
+      <input id="tags" placeholder="e.g. welding, sensors">
+      <label for="author">Your name</label>
+      <input id="author" required maxlength="40">
+      <div style="margin-top:16px"><button class="btn" type="submit">Post idea</button></div>
+    </form>
+
+    <div class="toolbar">
+      <div class="tabs" id="tabs"></div>
+      <input type="search" id="search" placeholder="Search ideas…">
+    </div>
+    <div class="grid" id="ideas"></div>
+
+    <a class="back" href="goals.html">← Back to options</a>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    var me = currentDiscipline();
+    showDisciplineChip(me);
+
+    var ideas = load("ideas", SAMPLE_IDEAS);
+    var voted = load("voted", []);
+    var filter = me || "all";
+
+    document.getElementById("author").value = load("name", "");
+
+    function render() {
+      var q = document.getElementById("search").value.toLowerCase();
+      var list = ideas
+        .filter(function (i) { return filter === "all" || i.discipline === filter; })
+        .filter(function (i) { return (i.title + " " + i.body + " " + i.tags.join(" ")).toLowerCase().indexOf(q) !== -1; })
+        .sort(function (a, b) { return b.votes - a.votes; });
+
+      document.getElementById("ideas").innerHTML = list.length ? list.map(function (i) {
+        var hasVoted = voted.indexOf(i.id) !== -1;
+        return '<article class="card">' +
+          '<div class="meta">' + DISCIPLINES[i.discipline].icon + " " + DISCIPLINES[i.discipline].name + " · by " + escapeHtml(i.author) + "</div>" +
+          "<h3>" + escapeHtml(i.title) + "</h3>" +
+          "<p>" + escapeHtml(i.body) + "</p>" +
+          '<div class="tags">' + i.tags.map(function (t) { return '<span class="tag">' + escapeHtml(t) + "</span>"; }).join("") + "</div>" +
+          '<div class="card-foot"><span class="meta">' + i.votes + " backing</span>" +
+          '<button class="btn ' + (hasVoted ? "" : "secondary") + '" data-vote="' + i.id + '">' + (hasVoted ? "✓ Backed" : "👍 Back this") + "</button></div>" +
+          "</article>";
+      }).join("") : '<div class="empty">No ideas here yet. Be the first to share one!</div>';
+    }
+
+    buildTabs(document.getElementById("tabs"), filter, function (key) { filter = key; render(); });
+    document.getElementById("search").oninput = render;
+
+    // Back / un-back an idea
+    document.getElementById("ideas").onclick = function (e) {
+      var btn = e.target.closest("[data-vote]");
+      if (!btn) return;
+      var id = Number(btn.dataset.vote);
+      var idea = ideas.find(function (i) { return i.id === id; });
+      var at = voted.indexOf(id);
+      if (at === -1) { voted.push(id); idea.votes++; } else { voted.splice(at, 1); idea.votes--; }
+      save("ideas", ideas); save("voted", voted);
+      render();
+    };
+
+    // Post a new idea
+    document.getElementById("idea-form").onsubmit = function (e) {
+      e.preventDefault();
+      var author = document.getElementById("author").value.trim();
+      ideas.push({
+        id: Date.now(),
+        discipline: me || "mechanical",
+        title: document.getElementById("title").value.trim(),
+        body: document.getElementById("body").value.trim(),
+        tags: document.getElementById("tags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean),
+        author: author,
+        votes: 0
+      });
+      save("ideas", ideas); save("name", author);
+      e.target.reset();
+      document.getElementById("author").value = author;
+      render();
+    };
+
+    render();
+  </script>
+</body>
+</html>
