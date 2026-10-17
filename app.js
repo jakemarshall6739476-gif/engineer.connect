@@ -8,7 +8,8 @@ var DISCIPLINES = {
   chemical:   { name: "Chemical",   icon: "⚗️", blurb: "Processes, materials, reactions and plant design." },
   civil:      { name: "Civil",      icon: "🏗️", blurb: "Structures, infrastructure, geotechnics and water." },
   aerospace:  { name: "Aerospace",  icon: "✈️", blurb: "Aircraft, spacecraft, propulsion and aerodynamics." },
-  software:   { name: "Software",   icon: "💻", blurb: "Code, data, automation and engineering tools." }
+  software:   { name: "Software",   icon: "💻", blurb: "Code, data, automation and engineering tools." },
+  nuclear:    { name: "Nuclear",    icon: "☢️", blurb: "Reactors, radiation safety, fuel and decommissioning." }
 };
 
 // ---------- Saving and loading ----------
@@ -67,7 +68,8 @@ var SAMPLE_IDEAS = [
   { id: 3, discipline: "chemical", title: "Recycling waste heat from small breweries", body: "Heat exchanger design to reuse wort-boiling heat for cleaning water. Seeking a mechanical partner.", tags: ["energy", "heat transfer"], author: "Lena M.", votes: 7 },
   { id: 4, discipline: "civil", title: "Sensor network for ageing footbridges", body: "Cheap strain gauges and a dashboard so councils can spot problems early.", tags: ["structures", "IoT"], author: "Marcus O.", votes: 5 },
   { id: 5, discipline: "aerospace", title: "3D-printed drone frame stress testing", body: "Comparing infill patterns for strength vs weight. Would love lab access or FEA help.", tags: ["3D printing", "FEA"], author: "Aisha K.", votes: 8 },
-  { id: 6, discipline: "software", title: "Plain-English tolerance stack-up calculator", body: "A web tool that explains each step of a tolerance stack so apprentices can learn from it.", tags: ["tools", "education"], author: "Dan R.", votes: 11 }
+  { id: 6, discipline: "software", title: "Plain-English tolerance stack-up calculator", body: "A web tool that explains each step of a tolerance stack so apprentices can learn from it.", tags: ["tools", "education"], author: "Dan R.", votes: 11 },
+  { id: 7, discipline: "nuclear", title: "Remote inspection crawler for decommissioning", body: "Small tracked robot with a radiation-hardened camera for checking old pipework. Looking for help with shielding and controls.", tags: ["robotics", "decommissioning"], author: "Owen T.", votes: 6 }
 ];
 
 var SAMPLE_PEOPLE = [
@@ -78,5 +80,6 @@ var SAMPLE_PEOPLE = [
   { id: 5, name: "Aisha Khan", role: "Aerospace Engineer", discipline: "aerospace", location: "Derby", skills: ["ANSYS", "Composites", "CFD"], looking: "Access to a test rig" },
   { id: 6, name: "Dan Reid", role: "Software Engineer", discipline: "software", location: "Manchester", skills: ["Python", "Web apps", "Automation"], looking: "Engineers with problems worth automating" },
   { id: 7, name: "Grace Liu", role: "Manufacturing Engineer", discipline: "mechanical", location: "Coventry", skills: ["Lean", "Welding", "CNC"], looking: "Swapping shop-floor improvement ideas" },
-  { id: 8, name: "Sam Patel", role: "Controls Engineer", discipline: "electrical", location: "Sheffield", skills: ["PLC", "SCADA", "Motor drives"], looking: "Side projects in robotics" }
+  { id: 8, name: "Sam Patel", role: "Controls Engineer", discipline: "electrical", location: "Sheffield", skills: ["PLC", "SCADA", "Motor drives"], looking: "Side projects in robotics" },
+  { id: 9, name: "Owen Thomas", role: "Nuclear Safety Engineer", discipline: "nuclear", location: "Cumbria", skills: ["Safety cases", "Shielding", "MCNP"], looking: "Robotics engineers for remote inspection" }
 ];

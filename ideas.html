@@ -24,6 +24,8 @@
       <input id="title" required maxlength="100" placeholder="e.g. Cheaper way to test weld quality">
       <label for="body">Describe it</label>
       <textarea id="body" required maxlength="600" placeholder="What's the problem, and what kind of help are you after?"></textarea>
+      <label for="area">Area</label>
+      <select id="area"></select>
       <label for="tags">Tags (separate with commas)</label>
       <input id="tags" placeholder="e.g. welding, sensors">
       <label for="author">Your name</label>
@@ -46,10 +48,21 @@
     showDisciplineChip(me);
 
     var ideas = load("ideas", SAMPLE_IDEAS);
+    // Add any starter ideas that were added after this browser first saved its list
+    SAMPLE_IDEAS.forEach(function (s) {
+      if (!ideas.some(function (i) { return i.id === s.id; })) ideas.push(s);
+    });
     var voted = load("voted", []);
     var filter = me || "all";
 
     document.getElementById("author").value = load("name", "");
+
+    // Area dropdown on the form, starting on the area the user picked
+    var areaSelect = document.getElementById("area");
+    areaSelect.innerHTML = Object.keys(DISCIPLINES).map(function (k) {
+      return '<option value="' + k + '">' + DISCIPLINES[k].icon + " " + DISCIPLINES[k].name + "</option>";
+    }).join("");
+    areaSelect.value = me || "mechanical";
 
     function render() {
       var q = document.getElementById("search").value.toLowerCase();
@@ -92,7 +105,7 @@
       var author = document.getElementById("author").value.trim();
       ideas.push({
         id: Date.now(),
-        discipline: me || "mechanical",
+        discipline: areaSelect.value,
         title: document.getElementById("title").value.trim(),
         body: document.getElementById("body").value.trim(),
         tags: document.getElementById("tags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean),
@@ -102,6 +115,7 @@
       save("ideas", ideas); save("name", author);
       e.target.reset();
       document.getElementById("author").value = author;
+      areaSelect.value = me || "mechanical";
       render();
     };
 
