@@ -14,3 +14,7 @@ Shared look: `style.css`. Shared code and starter content: `app.js`.
 Everything is saved in your own browser only, so other people can't see your ideas yet.
 The engineers on the Connections page are made-up examples. Real sign-up, shared data
 and messaging need a server and a database, which is the next stage.
+
+## When you change style.css or app.js
+Every page loads them as `style.css?v=3` and `app.js?v=3`. Bump the number on all pages
+after a change, so browsers fetch the new version instead of an old saved copy.

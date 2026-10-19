@@ -144,3 +144,61 @@ label { display: block; font-weight: 600; font-size: 0.9rem; margin: 12px 0 4px;
   .topbar { padding: 12px 16px; }
   main { padding-top: 28px; }
 }
+
+/* ---------- Opening screen (home page) ---------- */
+.splash {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--bg);
+  cursor: pointer;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.splash[hidden] { display: none; }
+.splash.leaving { opacity: 0; transform: scale(1.04); pointer-events: none; }
+
+/* Two meshing gears: the "connect" in Engineer Connect */
+.splash-gears { width: 120px; height: 100px; animation: pop-in 0.6s cubic-bezier(.2,1.4,.4,1) both; }
+.splash-gears .gear { transform-box: fill-box; transform-origin: center; }
+.splash-gears .big   { animation: spin 4s linear infinite; }
+.splash-gears .small { animation: spin 2.55s linear infinite reverse; }
+.splash-gears .teeth { fill: none; stroke-width: 8; }
+.splash-gears .big   .teeth, .splash-gears .big .body   { stroke: var(--accent); fill-opacity: 1; }
+.splash-gears .small .teeth, .splash-gears .small .body { stroke: var(--text); }
+.splash-gears .big .body { fill: var(--accent); }
+.splash-gears .small .body { fill: var(--text); }
+.splash-gears .hole { fill: var(--bg); }
+
+.splash-name {
+  margin: 18px 0 0; font-size: clamp(2.2rem, 8vw, 3.6rem); font-weight: 800; letter-spacing: -0.02em;
+  display: flex; overflow: hidden; padding-bottom: 4px;
+}
+.splash-name span {
+  display: inline-block;
+  animation: letter-up 0.5s cubic-bezier(.2,.9,.3,1) both;
+  animation-delay: calc(0.35s + var(--i) * 0.045s);
+}
+.splash-name .accent { color: var(--accent); }
+.splash-line {
+  width: min(260px, 60vw); height: 3px; border-radius: 3px; margin-top: 10px;
+  background: var(--accent); transform-origin: left;
+  animation: draw-line 0.6s ease 1.2s both;
+}
+.splash-tagline {
+  margin: 14px 0 0; color: var(--muted); font-size: 1.05rem;
+  animation: fade-up 0.6s ease 1.5s both;
+}
+.splash-skip {
+  position: absolute; bottom: 24px; font-size: 0.8rem; color: var(--muted);
+  animation: fade-up 0.6s ease 1.8s both;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.4) rotate(-40deg); } }
+@keyframes letter-up { from { opacity: 0; transform: translateY(110%); } }
+@keyframes draw-line { from { transform: scaleX(0); } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(8px); } }
+
+/* People who turn off animations in their device settings just see it fade */
+@media (prefers-reduced-motion: reduce) {
+  .splash *, .splash { animation: none !important; transition: opacity 0.3s ease !important; transform: none !important; }
+}

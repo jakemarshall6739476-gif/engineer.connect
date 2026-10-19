@@ -4,9 +4,29 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Engineer Connect</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
+  <!-- Opening screen: plays once per visit, click or press any key to skip -->
+  <div class="splash" id="splash" hidden>
+    <svg class="splash-gears" viewBox="0 0 100 80" aria-hidden="true">
+      <g class="gear big">
+        <circle class="teeth" cx="36" cy="46" r="22" stroke-dasharray="5.76 5.76"></circle>
+        <circle class="body" cx="36" cy="46" r="18"></circle>
+        <circle class="hole" cx="36" cy="46" r="6"></circle>
+      </g>
+      <g class="gear small">
+        <circle class="teeth" cx="66" cy="26" r="14" stroke-dasharray="5.5 5.5"></circle>
+        <circle class="body" cx="66" cy="26" r="10"></circle>
+        <circle class="hole" cx="66" cy="26" r="3.5"></circle>
+      </g>
+    </svg>
+    <h1 class="splash-name" id="splash-name" aria-label="Engineer Connect"></h1>
+    <div class="splash-line"></div>
+    <p class="splash-tagline">Where engineers build together</p>
+    <div class="splash-skip">Click to skip</div>
+  </div>
+
   <header class="topbar">
     <a class="brand" href="index.html">Engineer<span>Connect</span></a>
   </header>
@@ -21,8 +41,36 @@
     <div class="choices" id="disciplines"></div>
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
   <script>
+    // Opening screen: only the first time the site is opened in a visit.
+    (function () {
+      var seen = false;
+      try { seen = sessionStorage.getItem("ec_splash_seen") === "1"; } catch (e) {}
+      if (seen) return;
+      try { sessionStorage.setItem("ec_splash_seen", "1"); } catch (e) {}
+
+      var splash = document.getElementById("splash");
+      // Each letter is its own piece so they can rise one after another.
+      var letters = "Engineer".split("").map(function (c) { return [c, ""]; })
+        .concat("Connect".split("").map(function (c) { return [c, "accent"]; }));
+      document.getElementById("splash-name").innerHTML = letters.map(function (l, i) {
+        return '<span aria-hidden="true" class="' + l[1] + '" style="--i:' + i + '">' + l[0] + "</span>";
+      }).join("");
+      splash.hidden = false;
+
+      var closed = false;
+      function close() {
+        if (closed) return;
+        closed = true;
+        splash.classList.add("leaving");
+        setTimeout(function () { splash.remove(); }, 650);
+      }
+      setTimeout(close, 2900);
+      splash.addEventListener("click", close);
+      document.addEventListener("keydown", close, { once: true });
+    })();
+
     // Build one card per discipline. Clicking a card goes to the goals page.
     document.getElementById("disciplines").innerHTML = Object.keys(DISCIPLINES).map(function (key) {
       var d = DISCIPLINES[key];
