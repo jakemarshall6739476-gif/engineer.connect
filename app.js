@@ -83,3 +83,55 @@ var SAMPLE_PEOPLE = [
   { id: 8, name: "Sam Patel", role: "Controls Engineer", discipline: "electrical", location: "Sheffield", skills: ["PLC", "SCADA", "Motor drives"], looking: "Side projects in robotics" },
   { id: 9, name: "Owen Thomas", role: "Nuclear Safety Engineer", discipline: "nuclear", location: "Cumbria", skills: ["Safety cases", "Shielding", "MCNP"], looking: "Robotics engineers for remote inspection" }
 ];
+
+// ---------- Live news banner (under the top bar on every page) ----------
+// Headlines come from news.json, which update_news.py refreshes from real news feeds.
+function timeAgo(iso) {
+  var mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 60) return Math.max(mins, 1) + "m ago";
+  if (mins < 60 * 24) return Math.round(mins / 60) + "h ago";
+  return Math.round(mins / 1440) + "d ago";
+}
+
+function addNewsTicker() {
+  var topbar = document.querySelector(".topbar");
+  if (!topbar) return;
+  var bar = document.createElement("div");
+  bar.className = "ticker";
+  bar.innerHTML = '<a class="ticker-label" href="news.html"><span class="live-dot"></span>Latest</a>' +
+    '<div class="ticker-window"><div class="ticker-track"></div></div>';
+  topbar.insertAdjacentElement("afterend", bar);
+  var track = bar.querySelector(".ticker-track");
+  // Stick just under the top bar, whose height changes on narrow screens
+  function stickUnderTopbar() { bar.style.top = topbar.offsetHeight + "px"; }
+  stickUnderTopbar();
+  window.addEventListener("resize", stickUnderTopbar);
+
+  function show(data) {
+    var me = currentDiscipline();
+    var items = (data.items || []).filter(function (i) { return /^https?:\/\//.test(i.link); }).slice(0, 30);
+    if (!items.length) { bar.remove(); return; }
+    // Headlines from your own area go first
+    if (me) items.sort(function (a, b) { return (b.area === me) - (a.area === me); });
+    var html = items.map(function (i) {
+      return '<a class="ticker-item" href="' + escapeHtml(i.link) + '" target="_blank" rel="noopener">' +
+        '<span class="ticker-source">' + escapeHtml(i.source) + "</span>" + escapeHtml(i.title) +
+        '<span class="ticker-time">' + timeAgo(i.published) + "</span></a>";
+    }).join("");
+    track.innerHTML = html + '<span aria-hidden="true" class="ticker-copy">' + html + "</span>"; // twice, so the loop is seamless
+    track.querySelectorAll(".ticker-copy a").forEach(function (a) { a.tabIndex = -1; });
+    // Same reading speed however many headlines there are (about 70 pixels a second)
+    track.style.animationDuration = Math.max(track.scrollWidth / 2 / 70, 20) + "s";
+    bar.title = "Updated " + timeAgo(data.updated) + ". Hover to pause.";
+  }
+
+  function load() {
+    fetch("news.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(show)
+      .catch(function () { if (!track.children.length) bar.remove(); });
+  }
+  load();
+  setInterval(load, 15 * 60 * 1000); // check for new headlines every 15 minutes
+}
+addNewsTicker();
