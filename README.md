@@ -27,5 +27,5 @@ engineering sites (IEEE Spectrum, ScienceDaily, Tech Xplore, NASA, New Civil Eng
 - `update_news.py` reads those sites' news feeds and saves the newest headlines to `news.json`.
 - On this PC: double-click `Refresh news.bat` to get the latest headlines.
 - Online: `.github/workflows/news.yml` runs the script every hour on GitHub, so the banner keeps
-  itself up to date (this needs the site hosted from GitHub, see "Putting it online").
+  itself up to date (this needs the site hosted from GitHub, for example GitHub Pages or Netlify linked to GitHub).
 - To add or remove a news site, edit the `FEEDS` list at the top of `update_news.py`.
