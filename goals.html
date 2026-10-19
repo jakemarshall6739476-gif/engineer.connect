@@ -4,11 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Engineer Connect</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <nav class="nav">
+      <a href="ideas.html">Ideas</a>
+      <a href="connections.html">Connections</a>
+      <a href="news.html">News & Links</a>
+    </nav>
     <a class="chip" id="discipline-chip" hidden></a>
   </header>
 
@@ -30,12 +35,17 @@
         <h2>Connections</h2>
         <p>Find engineers in your field and beyond, and grow your network.</p>
       </a>
+      <a class="choice" href="news.html">
+        <div class="icon">📰</div>
+        <h2>News & Links</h2>
+        <p>Engineering news, science, magazines and professional bodies.</p>
+      </a>
     </div>
 
     <a class="back" href="index.html">← Choose a different area</a>
   </main>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
   <script>
     var d = currentDiscipline();
     if (!d) {

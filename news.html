@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>News & Links · Engineer Connect</title>
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <nav class="nav">
+      <a href="ideas.html">Ideas</a>
+      <a href="connections.html">Connections</a>
+      <a href="news.html" class="current">News & Links</a>
+    </nav>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>📰 News & Links</h1>
+      <p>Engineering news, science, magazines and professional bodies, all in one place.</p>
+    </section>
+
+    <div class="toolbar">
+      <div class="tabs" id="area-tabs"></div>
+    </div>
+    <div class="toolbar">
+      <div class="tabs" id="type-tabs"></div>
+      <input type="search" id="search" placeholder="Search links…">
+    </div>
+    <p class="meta" id="count"></p>
+    <div class="grid" id="links"></div>
+
+    <a class="back" href="goals.html">← Back to options</a>
+  </main>
+
+  <script src="app.js?v=4"></script>
+  <script src="links.js?v=4"></script>
+  <script>
+    var me = currentDiscipline();
+    showDisciplineChip(me);
+
+    var area = me ? "foryou" : "all";
+    var type = "all";
+
+    // Area tabs: "For you" (general + your area), All, General, then each area
+    var areaTabs = (me ? [["foryou", "⭐ For you"]] : [])
+      .concat([["all", "All"], ["general", "General"]])
+      .concat(Object.keys(DISCIPLINES).map(function (k) { return [k, DISCIPLINES[k].name]; }));
+    var typeTabs = [["all", "All types"]].concat(LINK_TYPES.map(function (t) { return [t, t]; }));
+
+    function makeTabs(id, tabs, selected, onChange) {
+      var box = document.getElementById(id);
+      box.innerHTML = tabs.map(function (t) {
+        return '<button class="tab' + (t[0] === selected ? " active" : "") + '" data-key="' + t[0] + '">' + t[1] + "</button>";
+      }).join("");
+      box.onclick = function (e) {
+        var btn = e.target.closest(".tab");
+        if (!btn) return;
+        box.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("active", t === btn); });
+        onChange(btn.dataset.key);
+      };
+    }
+
+    function areaLabel(a) {
+      return a === "general" ? "🌐 General" : DISCIPLINES[a].icon + " " + DISCIPLINES[a].name;
+    }
+
+    function render() {
+      var q = document.getElementById("search").value.toLowerCase();
+      var list = LINKS.filter(function (l) {
+        if (area === "foryou" && l.area !== "general" && l.area !== me) return false;
+        if (area !== "foryou" && area !== "all" && l.area !== area) return false;
+        if (type !== "all" && l.type !== type) return false;
+        return (l.name + " " + l.about).toLowerCase().indexOf(q) !== -1;
+      });
+      // Your own area first, then general
+      if (me) list.sort(function (a, b) { return (b.area === me) - (a.area === me); });
+
+      document.getElementById("count").textContent = list.length + (list.length === 1 ? " link" : " links");
+      document.getElementById("links").innerHTML = list.length ? list.map(function (l) {
+        return '<article class="card">' +
+          '<div class="meta">' + areaLabel(l.area) + "</div>" +
+          "<h3>" + l.name + "</h3>" +
+          "<p>" + l.about + "</p>" +
+          '<div class="card-foot"><span class="tag">' + l.type + "</span>" +
+          '<a class="btn secondary" href="' + l.url + '" target="_blank" rel="noopener">Visit ↗</a></div>' +
+          "</article>";
+      }).join("") : '<div class="empty">No links match that search.</div>';
+    }
+
+    makeTabs("area-tabs", areaTabs, area, function (k) { area = k; render(); });
+    makeTabs("type-tabs", typeTabs, type, function (k) { type = k; render(); });
+    document.getElementById("search").oninput = render;
+    render();
+  </script>
+</body>
+</html>

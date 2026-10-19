@@ -4,11 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Connections · Engineer Connect</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <nav class="nav">
+      <a href="ideas.html">Ideas</a>
+      <a href="connections.html" class="current">Connections</a>
+      <a href="news.html">News & Links</a>
+    </nav>
     <a class="chip" id="discipline-chip" hidden></a>
   </header>
 
@@ -27,7 +32,7 @@
     <a class="back" href="goals.html">← Back to options</a>
   </main>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
   <script>
     var me = currentDiscipline();
     showDisciplineChip(me);
