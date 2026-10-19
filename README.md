@@ -18,5 +18,5 @@ The engineers on the Connections page are made-up examples. Real sign-up, shared
 and messaging need a server and a database, which is the next stage.
 
 ## When you change style.css or app.js
-Every page loads them as `style.css?v=4` and `app.js?v=4` (and `links.js?v=4` on the News page). Bump the number on all pages
+Every page loads them as `style.css?v=6` and `app.js?v=6` (and `links.js?v=6` on the News page). Bump the number on all pages
 after a change, so browsers fetch the new version instead of an old saved copy.
