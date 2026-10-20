@@ -102,15 +102,22 @@ function addNewsTicker() {
     '<div class="ticker-window"><div class="ticker-track"></div></div>';
   topbar.insertAdjacentElement("afterend", bar);
   var track = bar.querySelector(".ticker-track");
-  // Stick just under the top bar, whose height changes on narrow screens
-  function stickUnderTopbar() { bar.style.top = topbar.offsetHeight + "px"; }
+  // Stick just under the top bar, whose height changes on narrow screens. Also tell the
+  // browser how much of the top is covered, so when it scrolls to a box (for example one
+  // that needs filling in) it stops below the top bar and banner instead of behind them.
+  function stickUnderTopbar() {
+    bar.style.top = topbar.offsetHeight + "px";
+    var covered = topbar.offsetHeight + (bar.isConnected ? bar.offsetHeight : 0);
+    document.documentElement.style.scrollPaddingTop = (covered + 44) + "px"; // room for the box's label too
+  }
+  function removeBar() { bar.remove(); stickUnderTopbar(); }
   stickUnderTopbar();
   window.addEventListener("resize", stickUnderTopbar);
 
   function show(data) {
     var me = currentDiscipline();
     var items = (data.items || []).filter(function (i) { return /^https?:\/\//.test(i.link); }).slice(0, 30);
-    if (!items.length) { bar.remove(); return; }
+    if (!items.length) { removeBar(); return; }
     // Headlines from your own area go first
     if (me) items.sort(function (a, b) { return (b.area === me) - (a.area === me); });
     var html = items.map(function (i) {
@@ -123,13 +130,14 @@ function addNewsTicker() {
     // Same reading speed however many headlines there are (about 70 pixels a second)
     track.style.animationDuration = Math.max(track.scrollWidth / 2 / 70, 20) + "s";
     bar.title = "Updated " + timeAgo(data.updated) + ". Hover to pause.";
+    stickUnderTopbar();
   }
 
   function load() {
     fetch("news.json?t=" + Date.now(), { cache: "no-store" })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
       .then(show)
-      .catch(function () { if (!track.children.length) bar.remove(); });
+      .catch(function () { if (!track.children.length) removeBar(); });
   }
   load();
   setInterval(load, 15 * 60 * 1000); // check for new headlines every 15 minutes

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Jobs · Engineer Connect</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <header class="topbar">
@@ -37,6 +37,7 @@
         <select id="filter-pattern" aria-label="Working pattern"><option value="">On-site, hybrid or remote</option></select>
         <input type="search" id="search" placeholder="Search job title, company, skill or location…">
       </div>
+      <p class="notice" id="job-notice" role="status" hidden></p>
       <p class="meta" id="job-count"></p>
       <div class="grid" id="jobs"></div>
     </section>
@@ -158,8 +159,8 @@
     <div class="job-ad" id="dialog-body"></div>
   </dialog>
 
-  <script src="app.js?v=9"></script>
-  <script src="jobs.js?v=9"></script>
+  <script src="app.js?v=11"></script>
+  <script src="jobs.js?v=11"></script>
   <script>
     var me = currentDiscipline();
     showDisciplineChip(me);
@@ -215,6 +216,7 @@
         else if (el.type === "checkbox") el.checked = !!v;
         else if (el.type === "radio") el.checked = el.value === v;
         else if (el.dataset.list) el.value = (v || []).join(el.dataset.list === "lines" ? "\n" : ", ");
+        else if (el.tagName === "SELECT" && !v) el.selectedIndex = 0; // a drop-down is never left blank
         else el.value = v == null ? "" : v;
       });
       updateApplyField();
@@ -288,6 +290,7 @@
 
     // ---------- Find a job ----------
     var areaFilter = me || "all";
+    var justPostedId = null; // the vacancy to point out after posting
     function daysAgo(iso) {
       var d = Math.round((Date.now() - new Date(iso + "T12:00:00").getTime()) / 86400000);
       return d <= 0 ? "Posted today" : d === 1 ? "Posted yesterday" : "Posted " + d + " days ago";
@@ -310,7 +313,7 @@
       document.getElementById("job-count").textContent = list.length + (list.length === 1 ? " vacancy" : " vacancies");
       document.getElementById("jobs").innerHTML = list.length ? list.map(function (j) {
         var area = DISCIPLINES[j.area];
-        return '<article class="card job-card">' +
+        return '<article class="card job-card' + (j.id === justPostedId ? " just-posted" : "") + '" data-job="' + j.id + '">' +
           '<div class="meta">' + (area ? area.icon + " " + area.name : "") + " · " + daysAgo(j.posted) + (j.mine ? ' · <strong>Your vacancy</strong>' : "") + "</div>" +
           "<h3>" + escapeHtml(j.title) + "</h3>" +
           '<div class="meta">' + escapeHtml(j.company) + " · " + escapeHtml(j.location) + "</div>" +
@@ -382,7 +385,18 @@
     document.getElementById("template-use").onclick = function () {
       var t = selectedTemplate();
       if (!t) return;
-      fillForm(t.data);
+      // Reset every role and candidate box first, so nothing (like pay) is left over
+      // from a template used earlier; then fill in this template's details.
+      var blank = {};
+      TEMPLATE_FIELDS.forEach(function (f) {
+        var el = form.querySelector('[name="' + f + '"]');
+        if (!el) return;
+        if (el.type === "checkbox" && el.dataset.group) blank[f] = [];
+        else if (el.type === "checkbox") blank[f] = el.defaultChecked;
+        else if (el.dataset.list) blank[f] = [];
+        else blank[f] = "";
+      });
+      fillForm(Object.assign(blank, t.data));
       save("job_draft", readForm());
       showMessage("Template \"" + t.name + "\" loaded. Add your company details, pay and how to apply.");
     };
@@ -451,10 +465,15 @@
       form.reset();
       prefillDefaults();
       showMessage("");
+      // Clear any filters so the new vacancy is definitely in the list, then point it out
       areaFilter = "all";
       buildTabs(document.getElementById("area-tabs"), "all", function (k) { areaFilter = k; renderJobs(); });
+      ["search", "filter-type", "filter-pattern"].forEach(function (id) { document.getElementById(id).value = ""; });
+      justPostedId = j.id;
+      var notice = document.getElementById("job-notice");
+      notice.textContent = "✓ Your vacancy \"" + j.title + "\" is now listed. It's highlighted below.";
+      notice.hidden = false;
       location.hash = "find";
-      setTimeout(function () { alert("Your vacancy \"" + j.title + "\" is now listed."); }, 50);
     });
     // Clear the custom error as soon as the person edits that box
     ["f-apply", "f-salary-max", "f-website"].forEach(function (id) {
@@ -470,7 +489,14 @@
         b.classList.toggle("active", b.dataset.view === view);
         b.setAttribute("aria-selected", b.dataset.view === view);
       });
-      if (view === "find") renderJobs();
+      if (view === "find") {
+        renderJobs();
+        var fresh = justPostedId && document.querySelector('[data-job="' + justPostedId + '"]');
+        if (fresh) fresh.scrollIntoView({ block: "center", behavior: "smooth" });
+      } else {
+        document.getElementById("job-notice").hidden = true;
+        justPostedId = null;
+      }
     }
     document.querySelectorAll(".segmented button").forEach(function (b) {
       b.onclick = function () { location.hash = b.dataset.view; };

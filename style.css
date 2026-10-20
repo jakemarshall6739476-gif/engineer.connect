@@ -354,3 +354,12 @@ blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--acc
   .post-layout { grid-template-columns: 1fr; }
   .preview-wrap { position: static; max-height: none; }
 }
+
+/* After posting a vacancy: a message and a highlighted card */
+.notice {
+  margin: 0 0 12px; padding: 10px 14px; border-radius: 10px;
+  background: rgba(31, 157, 85, 0.12); color: #1f9d55; font-weight: 600;
+}
+.job-card.just-posted { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); animation: just-posted 1.2s ease 2; }
+@keyframes just-posted { 50% { box-shadow: 0 0 0 7px var(--accent-soft); } }
+@media (prefers-color-scheme: dark) { .notice { color: #4ccf88; } }
