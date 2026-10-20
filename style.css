@@ -34,6 +34,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; } /* hidden things stay hidden, whatever their style */
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -273,4 +274,83 @@ label { display: block; font-weight: 600; font-size: 0.9rem; margin: 12px 0 4px;
   .ticker-window { overflow-x: auto; }
   .ticker-track { animation: none; }
   .ticker-copy { display: none; }
+}
+
+/* ---------- Jobs page ---------- */
+main.wide { max-width: 1200px; }
+.segmented {
+  display: flex; width: fit-content; margin: 0 auto 24px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+}
+.segmented button {
+  border: none; background: none; color: var(--muted); font: inherit; font-weight: 600;
+  padding: 8px 20px; border-radius: 999px; cursor: pointer;
+}
+.segmented button.active { background: var(--accent); color: #fff; }
+select { width: auto; }
+.toolbar select { min-width: 180px; }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.row > .field, .row > input, .row > select { flex: 1 1 160px; }
+.field { margin-bottom: 4px; }
+.field select { width: 100%; }
+.hint { font-weight: 400; color: var(--muted); }
+
+.template-bar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+.template-bar .row { flex: 1 1 360px; }
+.template-bar select { flex: 1 1 200px; }
+
+.post-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+fieldset.panel { margin: 0 0 20px; min-width: 0; }
+legend { font-weight: 700; font-size: 1.1rem; padding: 0 6px; display: flex; align-items: center; gap: 8px; }
+.step-no {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.85rem;
+}
+.check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 14px; margin: 4px 0 8px; }
+label.check { display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 6px 0; cursor: pointer; }
+label.check input { width: auto; margin: 0; accent-color: var(--accent); }
+.radios { gap: 24px; }
+.fair { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); }
+.form-actions .row + .row { margin-top: 12px; justify-content: flex-end; }
+.form-actions .row:last-child > * { flex: 0 0 auto; }
+#form-message { min-height: 1.2em; margin: 10px 0 0; }
+#form-message.error { color: #d93b3b; }
+#form-message.ok { color: #1f9d55; }
+
+.preview-wrap { position: sticky; top: 120px; max-height: calc(100vh - 140px); overflow-y: auto; border-radius: var(--radius); }
+.preview-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 8px; }
+
+/* A job advert (preview and details pop-up) */
+.job-ad h2.ad-title { font-size: 1.4rem; margin: 0 0 4px; }
+.job-ad h3 { font-size: 1rem; margin: 20px 0 6px; }
+.job-ad p { margin: 0 0 8px; color: var(--text); }
+.job-ad ul { margin: 0; padding-left: 20px; }
+.job-ad ul.benefits { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; }
+.job-ad .tags { margin: 8px 0; }
+.job-ad .btn { text-decoration: none; margin-top: 4px; }
+.ad-company { color: var(--muted); }
+.ad-pay { font-weight: 700; margin: 6px 0 2px; }
+.ad-pay.small { font-size: 0.95rem; margin: 0; }
+.tag.strong { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 10px 0; font-size: 0.95rem; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--accent); color: var(--muted); font-style: italic; }
+
+.job-dialog {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); padding: 28px;
+}
+.job-dialog::backdrop { background: rgba(10, 15, 25, 0.6); }
+.dialog-close {
+  position: sticky; top: 0; float: right; margin: -12px -12px 0 0;
+  border: none; background: var(--bg); color: var(--text); border-radius: 50%;
+  width: 34px; height: 34px; cursor: pointer; font-size: 1rem;
+}
+
+@media (max-width: 900px) {
+  .post-layout { grid-template-columns: 1fr; }
+  .preview-wrap { position: static; max-height: none; }
 }

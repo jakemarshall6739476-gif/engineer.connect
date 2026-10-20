@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jobs · Engineer Connect</title>
+  <link rel="stylesheet" href="style.css?v=9">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <nav class="nav">
+      <a href="ideas.html">Ideas</a>
+      <a href="connections.html">Connections</a>
+      <a href="jobs.html" class="current">Jobs</a>
+      <a href="news.html">News & Links</a>
+    </nav>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main class="wide">
+    <section class="hero">
+      <h1>💼 Jobs</h1>
+      <p>Engineering vacancies from employers, and an easy way to post your own.</p>
+    </section>
+
+    <div class="segmented" role="tablist">
+      <button type="button" role="tab" data-view="find">🔍 Find a job</button>
+      <button type="button" role="tab" data-view="post">📝 Post a vacancy</button>
+    </div>
+
+    <!-- ================= Find a job ================= -->
+    <section id="view-find">
+      <div class="toolbar"><div class="tabs" id="area-tabs"></div></div>
+      <div class="toolbar">
+        <select id="filter-type" aria-label="Job type"><option value="">Any job type</option></select>
+        <select id="filter-pattern" aria-label="Working pattern"><option value="">On-site, hybrid or remote</option></select>
+        <input type="search" id="search" placeholder="Search job title, company, skill or location…">
+      </div>
+      <p class="meta" id="job-count"></p>
+      <div class="grid" id="jobs"></div>
+    </section>
+
+    <!-- ================= Post a vacancy ================= -->
+    <section id="view-post" hidden>
+      <div class="panel template-bar">
+        <div>
+          <h2>Start from a template</h2>
+          <p class="meta">Templates fill in the role and your ideal candidate. Save your own to reuse them for future hires.</p>
+        </div>
+        <div class="row">
+          <select id="template-select" aria-label="Template"></select>
+          <button type="button" class="btn secondary" id="template-use">Use template</button>
+          <button type="button" class="btn secondary" id="template-delete" hidden>Delete</button>
+        </div>
+      </div>
+
+      <div class="post-layout">
+        <form id="job-form" novalidate>
+          <fieldset class="panel">
+            <legend><span class="step-no">1</span> The company</legend>
+            <div class="row">
+              <div class="field"><label for="f-company">Company name *</label><input id="f-company" name="company" required maxlength="80"></div>
+              <div class="field"><label for="f-website">Company website</label><input id="f-website" name="website" type="url" placeholder="https://"></div>
+            </div>
+            <div class="field"><label for="f-location">Job location *</label><input id="f-location" name="location" required maxlength="80" placeholder="Town or city, e.g. Wolverhampton"></div>
+          </fieldset>
+
+          <fieldset class="panel">
+            <legend><span class="step-no">2</span> The role</legend>
+            <div class="field"><label for="f-title">Job title *</label><input id="f-title" name="title" required maxlength="80" placeholder="e.g. Coded Welder Fabricator"></div>
+            <div class="row">
+              <div class="field"><label for="f-area">Engineering area *</label><select id="f-area" name="area" required></select></div>
+              <div class="field"><label for="f-level">Level *</label><select id="f-level" name="level" data-options="level" required></select></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="f-type">Job type *</label><select id="f-type" name="type" data-options="type" required></select></div>
+              <div class="field"><label for="f-pattern">Where they'll work *</label><select id="f-pattern" name="pattern" data-options="pattern" required></select></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="f-salary-min">Pay from (£)</label><input id="f-salary-min" name="salaryMin" type="number" min="0" step="any" inputmode="decimal"></div>
+              <div class="field"><label for="f-salary-max">Pay up to (£)</label><input id="f-salary-max" name="salaryMax" type="number" min="0" step="any" inputmode="decimal"></div>
+              <div class="field"><label for="f-salary-period">Paid</label><select id="f-salary-period" name="salaryPeriod" data-options="salaryPeriod"></select></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="f-positions">Number of positions</label><input id="f-positions" name="positions" type="number" min="1" value="1"></div>
+              <div class="field"><label for="f-start">Start date</label><input id="f-start" name="startDate" type="date"></div>
+              <div class="field"><label for="f-closing">Closing date</label><input id="f-closing" name="closingDate" type="date"></div>
+            </div>
+            <div class="field"><label for="f-summary">About the role *</label><textarea id="f-summary" name="summary" required maxlength="800" placeholder="A short summary of the job and the team."></textarea></div>
+            <div class="field"><label for="f-resp">Main responsibilities <span class="hint">(one per line)</span></label><textarea id="f-resp" name="responsibilities" data-list="lines" placeholder="Weld to coded procedures&#10;Read fabrication drawings"></textarea></div>
+          </fieldset>
+
+          <fieldset class="panel">
+            <legend><span class="step-no">3</span> Your ideal candidate</legend>
+            <p class="meta">Your preferences for the person you'd like to hire.</p>
+            <div class="field"><label for="f-essential">Essential skills <span class="hint">(separate with commas)</span></label><input id="f-essential" name="essentialSkills" data-list="comma" placeholder="e.g. MIG, TIG, reading drawings"></div>
+            <div class="field"><label for="f-desirable">Nice-to-have skills <span class="hint">(separate with commas)</span></label><input id="f-desirable" name="desirableSkills" data-list="comma" placeholder="e.g. pipe welding, stainless steel"></div>
+            <div class="row">
+              <div class="field"><label for="f-exp">Years of experience</label><input id="f-exp" name="experience" type="number" min="0" max="40" placeholder="0 = none needed"></div>
+              <div class="field"><label for="f-qual">Minimum qualification</label><select id="f-qual" name="qualification" data-options="qualification"></select></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="f-reg">Professional registration</label><select id="f-reg" name="registration" data-options="registration"></select></div>
+              <div class="field"><label for="f-clear">Security clearance</label><select id="f-clear" name="clearance" data-options="clearance"></select></div>
+            </div>
+            <div class="row">
+              <div class="field"><label for="f-licence">Driving licence</label><select id="f-licence" name="licence" data-options="licence"></select></div>
+              <div class="field"><label for="f-travel">Travel</label><select id="f-travel" name="travel" data-options="travel"></select></div>
+            </div>
+            <label>Tickets and certificates</label>
+            <div class="check-grid" data-checks="certs"></div>
+            <div class="field"><label for="f-style">The kind of person you're looking for</label><textarea id="f-style" name="workingStyle" maxlength="400" placeholder="e.g. Takes pride in neat work and enjoys a small, friendly team."></textarea></div>
+            <label class="check"><input type="checkbox" name="rightToWork" checked> Must have the right to work in the UK</label>
+            <p class="meta fair">Keep it about the job: skills, experience and qualifications. Don't ask for age, gender, religion, health or other personal traits (Equality Act 2010).</p>
+          </fieldset>
+
+          <fieldset class="panel">
+            <legend><span class="step-no">4</span> What you offer</legend>
+            <div class="check-grid" data-checks="benefits"></div>
+          </fieldset>
+
+          <fieldset class="panel">
+            <legend><span class="step-no">5</span> How to apply</legend>
+            <div class="row radios">
+              <label class="check"><input type="radio" name="applyMethod" value="email" checked> By email</label>
+              <label class="check"><input type="radio" name="applyMethod" value="link"> On our website</label>
+            </div>
+            <div class="field"><label for="f-apply" id="f-apply-label">Email address for applications *</label><input id="f-apply" name="applyTarget" required maxlength="200"></div>
+            <div class="field"><label for="f-apply-notes">Anything applicants should include</label><input id="f-apply-notes" name="applyNotes" maxlength="200" placeholder="e.g. CV and copies of welding certificates"></div>
+          </fieldset>
+
+          <div class="panel form-actions">
+            <div class="row">
+              <input id="template-name" maxlength="50" placeholder="Template name, e.g. Welder (night shift)" aria-label="Template name">
+              <button type="button" class="btn secondary" id="template-save">💾 Save as template</button>
+            </div>
+            <p class="meta" id="form-message" role="status"></p>
+            <div class="row">
+              <button type="button" class="btn secondary" id="form-clear">Clear form</button>
+              <button type="submit" class="btn">Post vacancy</button>
+            </div>
+          </div>
+        </form>
+
+        <aside class="preview-wrap">
+          <div class="preview-label">Live preview: how your advert will look</div>
+          <div class="panel job-ad" id="preview"></div>
+        </aside>
+      </div>
+    </section>
+
+    <a class="back" href="goals.html">← Back to options</a>
+  </main>
+
+  <dialog id="job-dialog" class="job-dialog">
+    <button type="button" class="dialog-close" aria-label="Close">✕</button>
+    <div class="job-ad" id="dialog-body"></div>
+  </dialog>
+
+  <script src="app.js?v=9"></script>
+  <script src="jobs.js?v=9"></script>
+  <script>
+    var me = currentDiscipline();
+    showDisciplineChip(me);
+
+    var jobs = load("jobs", SAMPLE_JOBS);
+    var myTemplates = load("job_templates", []);
+    var form = document.getElementById("job-form");
+    var TEMPLATE_FIELDS = ["title", "area", "level", "type", "pattern", "salaryMin", "salaryMax", "salaryPeriod", "summary",
+      "responsibilities", "essentialSkills", "desirableSkills", "experience", "qualification", "registration", "clearance",
+      "licence", "travel", "certs", "workingStyle", "rightToWork", "benefits"];
+
+    // ---------- Fill the drop-downs and tick boxes ----------
+    function optionsHtml(list) {
+      return list.map(function (o) { return '<option value="' + escapeHtml(o) + '">' + escapeHtml(o) + "</option>"; }).join("");
+    }
+    form.querySelectorAll("select[data-options]").forEach(function (s) { s.innerHTML = optionsHtml(JOB_OPTIONS[s.dataset.options]); });
+    document.getElementById("f-area").innerHTML = Object.keys(DISCIPLINES).map(function (k) {
+      return '<option value="' + k + '">' + DISCIPLINES[k].icon + " " + DISCIPLINES[k].name + "</option>";
+    }).join("");
+    document.querySelectorAll("[data-checks]").forEach(function (box) {
+      var name = box.dataset.checks;
+      box.innerHTML = JOB_OPTIONS[name].map(function (o) {
+        return '<label class="check"><input type="checkbox" name="' + name + '" data-group="1" value="' + escapeHtml(o) + '"> ' + escapeHtml(o) + "</label>";
+      }).join("");
+    });
+    document.getElementById("filter-type").insertAdjacentHTML("beforeend", optionsHtml(JOB_OPTIONS.type));
+    document.getElementById("filter-pattern").insertAdjacentHTML("beforeend", optionsHtml(JOB_OPTIONS.pattern));
+    var today = new Date().toISOString().slice(0, 10);
+    document.getElementById("f-closing").min = today;
+
+    // ---------- Reading and filling the form ----------
+    function splitList(text, how) {
+      return String(text).split(how === "lines" ? /\n/ : /,/).map(function (s) { return s.trim(); }).filter(Boolean);
+    }
+    function readForm() {
+      var data = {};
+      form.querySelectorAll("[name]").forEach(function (el) {
+        var n = el.name;
+        if (el.type === "checkbox" && el.dataset.group) { data[n] = data[n] || []; if (el.checked) data[n].push(el.value); }
+        else if (el.type === "checkbox") data[n] = el.checked;
+        else if (el.type === "radio") { if (el.checked) data[n] = el.value; }
+        else if (el.dataset.list) data[n] = splitList(el.value, el.dataset.list);
+        else data[n] = el.value.trim();
+      });
+      return data;
+    }
+    function fillForm(data) {
+      form.querySelectorAll("[name]").forEach(function (el) {
+        var n = el.name;
+        if (!(n in data)) return;
+        var v = data[n];
+        if (el.type === "checkbox" && el.dataset.group) el.checked = (v || []).indexOf(el.value) !== -1;
+        else if (el.type === "checkbox") el.checked = !!v;
+        else if (el.type === "radio") el.checked = el.value === v;
+        else if (el.dataset.list) el.value = (v || []).join(el.dataset.list === "lines" ? "\n" : ", ");
+        else el.value = v == null ? "" : v;
+      });
+      updateApplyField();
+      refreshPreview();
+    }
+
+    // ---------- Showing a job advert (used by the preview and the details pop-up) ----------
+    function money(n) {
+      var num = Number(n);
+      return "£" + num.toLocaleString("en-GB", { maximumFractionDigits: num % 1 ? 2 : 0 });
+    }
+    function formatPay(j) {
+      var min = j.salaryMin, max = j.salaryMax, per = j.salaryPeriod || "per year";
+      if (min && max) return money(min) + " – " + money(max) + " " + per;
+      if (min) return "From " + money(min) + " " + per;
+      if (max) return "Up to " + money(max) + " " + per;
+      return "Pay not stated";
+    }
+    function niceDate(iso) {
+      return iso ? new Date(iso + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+    }
+    function tagsHtml(list) {
+      return '<div class="tags">' + list.map(function (t) { return '<span class="tag">' + escapeHtml(t) + "</span>"; }).join("") + "</div>";
+    }
+    function applyHref(j) {
+      if (j.applyMethod === "link") return /^https?:\/\//i.test(j.applyTarget) ? j.applyTarget : "";
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(j.applyTarget || "") ? "mailto:" + j.applyTarget + "?subject=" + encodeURIComponent("Application: " + (j.title || "")) : "";
+    }
+
+    function renderJobAd(j) {
+      var area = DISCIPLINES[j.area];
+      var facts = [];
+      if (j.experience !== "" && j.experience != null) facts.push(["Experience", Number(j.experience) > 0 ? j.experience + "+ years" : "No experience needed"]);
+      if (j.qualification) facts.push(["Qualification", j.qualification]);
+      if (j.registration && j.registration !== "Not required") facts.push(["Registration", j.registration]);
+      if (j.clearance && j.clearance !== "None") facts.push(["Security clearance", j.clearance]);
+      if (j.licence && j.licence !== "Not needed") facts.push(["Driving licence", j.licence]);
+      if (j.travel && j.travel !== "None") facts.push(["Travel", j.travel]);
+      if (j.rightToWork) facts.push(["Right to work", "Must have the right to work in the UK"]);
+      var href = applyHref(j);
+      var website = /^https?:\/\//i.test(j.website || "") ? ' · <a href="' + escapeHtml(j.website) + '" target="_blank" rel="noopener">Website ↗</a>' : "";
+
+      return "<header>" +
+        '<h2 class="ad-title">' + escapeHtml(j.title || "Job title") + "</h2>" +
+        '<div class="ad-company">' + escapeHtml(j.company || "Company name") + " · " + escapeHtml(j.location || "Location") + website + "</div>" +
+        '<div class="tags">' +
+          (area ? '<span class="tag strong">' + area.icon + " " + area.name + "</span>" : "") +
+          [j.level, j.type, j.pattern].filter(Boolean).map(function (t) { return '<span class="tag">' + escapeHtml(t) + "</span>"; }).join("") +
+        "</div>" +
+        '<div class="ad-pay">💷 ' + escapeHtml(formatPay(j)) + "</div>" +
+        '<div class="meta">' + [
+          Number(j.positions) > 1 ? escapeHtml(j.positions) + " positions" : "",
+          j.startDate ? "Starts " + niceDate(j.startDate) : "",
+          j.closingDate ? "Closes " + niceDate(j.closingDate) : ""
+        ].filter(Boolean).join(" · ") + "</div>" +
+        "</header>" +
+        '<h3>About the role</h3><p>' + escapeHtml(j.summary || "A short summary of the job will appear here.") + "</p>" +
+        ((j.responsibilities || []).length ? "<h3>What you'll do</h3><ul>" + j.responsibilities.map(function (r) { return "<li>" + escapeHtml(r) + "</li>"; }).join("") + "</ul>" : "") +
+        "<h3>Who we're looking for</h3>" +
+        ((j.essentialSkills || []).length ? '<div class="meta">Essential skills</div>' + tagsHtml(j.essentialSkills) : "") +
+        ((j.desirableSkills || []).length ? '<div class="meta">Nice to have</div>' + tagsHtml(j.desirableSkills) : "") +
+        (facts.length ? '<dl class="facts">' + facts.map(function (f) { return "<dt>" + f[0] + "</dt><dd>" + escapeHtml(f[1]) + "</dd>"; }).join("") + "</dl>" : "") +
+        ((j.certs || []).length ? '<div class="meta">Tickets and certificates</div>' + tagsHtml(j.certs) : "") +
+        (j.workingStyle ? '<blockquote>' + escapeHtml(j.workingStyle) + "</blockquote>" : "") +
+        ((j.benefits || []).length ? "<h3>What we offer</h3><ul class=\"benefits\">" + j.benefits.map(function (b) { return "<li>✓ " + escapeHtml(b) + "</li>"; }).join("") + "</ul>" : "") +
+        "<h3>How to apply</h3>" +
+        (j.applyNotes ? "<p>" + escapeHtml(j.applyNotes) + "</p>" : "") +
+        (href ? '<a class="btn" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' + (j.applyMethod === "link" ? "Apply on our website ↗" : "✉️ Apply by email") + "</a>"
+              : '<p class="meta">Add an email address or web link for applications.</p>');
+    }
+
+    // ---------- Find a job ----------
+    var areaFilter = me || "all";
+    function daysAgo(iso) {
+      var d = Math.round((Date.now() - new Date(iso + "T12:00:00").getTime()) / 86400000);
+      return d <= 0 ? "Posted today" : d === 1 ? "Posted yesterday" : "Posted " + d + " days ago";
+    }
+    function isOpen(j) { return !j.closingDate || j.closingDate >= today; }
+
+    function renderJobs() {
+      var q = document.getElementById("search").value.toLowerCase();
+      var type = document.getElementById("filter-type").value;
+      var pattern = document.getElementById("filter-pattern").value;
+      var list = jobs.filter(function (j) {
+        if (!isOpen(j)) return false;
+        if (areaFilter !== "all" && j.area !== areaFilter) return false;
+        if (type && j.type !== type) return false;
+        if (pattern && j.pattern !== pattern) return false;
+        var text = [j.title, j.company, j.location, j.summary].concat(j.essentialSkills || [], j.desirableSkills || []).join(" ").toLowerCase();
+        return text.indexOf(q) !== -1;
+      }).sort(function (a, b) { return (b.posted || "").localeCompare(a.posted || ""); });
+
+      document.getElementById("job-count").textContent = list.length + (list.length === 1 ? " vacancy" : " vacancies");
+      document.getElementById("jobs").innerHTML = list.length ? list.map(function (j) {
+        var area = DISCIPLINES[j.area];
+        return '<article class="card job-card">' +
+          '<div class="meta">' + (area ? area.icon + " " + area.name : "") + " · " + daysAgo(j.posted) + (j.mine ? ' · <strong>Your vacancy</strong>' : "") + "</div>" +
+          "<h3>" + escapeHtml(j.title) + "</h3>" +
+          '<div class="meta">' + escapeHtml(j.company) + " · " + escapeHtml(j.location) + "</div>" +
+          '<div class="ad-pay small">💷 ' + escapeHtml(formatPay(j)) + "</div>" +
+          tagsHtml([j.level, j.type, j.pattern].filter(Boolean)) +
+          '<div class="card-foot">' +
+            (j.mine ? '<button class="btn secondary" data-remove="' + j.id + '">Remove</button>' : "<span></span>") +
+            '<button class="btn" data-view-job="' + j.id + '">View details</button>' +
+          "</div></article>";
+      }).join("") : '<div class="empty">No vacancies match yet. Try another area, or post one yourself.</div>';
+    }
+
+    buildTabs(document.getElementById("area-tabs"), areaFilter, function (k) { areaFilter = k; renderJobs(); });
+    ["search", "filter-type", "filter-pattern"].forEach(function (id) { document.getElementById(id).oninput = renderJobs; });
+
+    var dialog = document.getElementById("job-dialog");
+    document.getElementById("jobs").onclick = function (e) {
+      var view = e.target.closest("[data-view-job]"), remove = e.target.closest("[data-remove]");
+      if (view) {
+        var job = jobs.find(function (j) { return String(j.id) === view.dataset.viewJob; });
+        document.getElementById("dialog-body").innerHTML = renderJobAd(job);
+        dialog.showModal();
+      }
+      if (remove && confirm("Remove this vacancy?")) {
+        jobs = jobs.filter(function (j) { return String(j.id) !== remove.dataset.remove; });
+        save("jobs", jobs);
+        renderJobs();
+      }
+    };
+    dialog.querySelector(".dialog-close").onclick = function () { dialog.close(); };
+    dialog.addEventListener("click", function (e) { if (e.target === dialog) dialog.close(); }); // click outside to close
+
+    // ---------- Post a vacancy ----------
+    var preview = document.getElementById("preview");
+    function refreshPreview() { preview.innerHTML = renderJobAd(readForm()); }
+
+    function updateApplyField() {
+      var byLink = form.querySelector('[name="applyMethod"]:checked').value === "link";
+      var input = document.getElementById("f-apply");
+      document.getElementById("f-apply-label").textContent = byLink ? "Web page for applications *" : "Email address for applications *";
+      input.type = byLink ? "url" : "email";
+      input.placeholder = byLink ? "https://yourcompany.co.uk/careers" : "jobs@yourcompany.co.uk";
+    }
+
+    // Keep an unfinished advert, so nothing is lost if the page is closed
+    form.addEventListener("input", function (e) {
+      if (e.target.name === "applyMethod") updateApplyField();
+      save("job_draft", readForm());
+      refreshPreview();
+    });
+
+    // Templates: ready-made ones plus your own
+    function renderTemplateSelect(selected) {
+      var sel = document.getElementById("template-select");
+      sel.innerHTML = '<optgroup label="Ready-made">' + STARTER_TEMPLATES.map(function (t, i) {
+        return '<option value="s' + i + '">' + escapeHtml(t.name) + "</option>";
+      }).join("") + "</optgroup>" +
+      (myTemplates.length ? '<optgroup label="Your templates">' + myTemplates.map(function (t, i) {
+        return '<option value="m' + i + '">' + escapeHtml(t.name) + "</option>";
+      }).join("") + "</optgroup>" : "");
+      if (selected) sel.value = selected;
+      document.getElementById("template-delete").hidden = sel.value.charAt(0) !== "m";
+    }
+    function selectedTemplate() {
+      var v = document.getElementById("template-select").value;
+      return v.charAt(0) === "s" ? STARTER_TEMPLATES[+v.slice(1)] : myTemplates[+v.slice(1)];
+    }
+    document.getElementById("template-select").onchange = function () { renderTemplateSelect(this.value); };
+    document.getElementById("template-use").onclick = function () {
+      var t = selectedTemplate();
+      if (!t) return;
+      fillForm(t.data);
+      save("job_draft", readForm());
+      showMessage("Template \"" + t.name + "\" loaded. Add your company details, pay and how to apply.");
+    };
+    document.getElementById("template-delete").onclick = function () {
+      var v = document.getElementById("template-select").value;
+      if (v.charAt(0) !== "m" || !confirm("Delete this template?")) return;
+      myTemplates.splice(+v.slice(1), 1);
+      save("job_templates", myTemplates);
+      renderTemplateSelect();
+    };
+    document.getElementById("template-save").onclick = function () {
+      var nameInput = document.getElementById("template-name");
+      var name = nameInput.value.trim() || document.getElementById("f-title").value.trim();
+      if (!name) { showMessage("Give the template a name (or fill in the job title) first.", true); nameInput.focus(); return; }
+      var all = readForm(), data = {};
+      TEMPLATE_FIELDS.forEach(function (f) { data[f] = all[f]; });
+      var existing = myTemplates.findIndex(function (t) { return t.name.toLowerCase() === name.toLowerCase(); });
+      if (existing !== -1) myTemplates[existing].data = data; else myTemplates.push({ name: name, data: data });
+      save("job_templates", myTemplates);
+      renderTemplateSelect("m" + (existing !== -1 ? existing : myTemplates.length - 1));
+      nameInput.value = "";
+      showMessage("Saved as template \"" + name + "\". Find it under \"Your templates\" at the top.");
+    };
+
+    function showMessage(text, isError) {
+      var m = document.getElementById("form-message");
+      m.textContent = text;
+      m.className = "meta" + (isError ? " error" : " ok");
+    }
+
+    document.getElementById("form-clear").onclick = function () {
+      if (!confirm("Clear the whole form?")) return;
+      form.reset();
+      try { localStorage.removeItem("ec_job_draft"); } catch (e) {}
+      prefillDefaults();
+      showMessage("");
+    };
+
+    function prefillDefaults() {
+      var employer = load("employer", {});
+      fillForm({ area: me || "mechanical", company: employer.company || "", website: employer.website || "" });
+    }
+
+    // Check everything before posting
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var j = readForm();
+      var apply = document.getElementById("f-apply");
+      apply.setCustomValidity(applyHref(j) ? "" : (j.applyMethod === "link" ? "Enter a web address starting with https://" : "Enter a valid email address"));
+      var max = document.getElementById("f-salary-max");
+      max.setCustomValidity(j.salaryMin && j.salaryMax && Number(j.salaryMax) < Number(j.salaryMin) ? "\"Pay up to\" must be more than \"Pay from\"" : "");
+      var web = document.getElementById("f-website");
+      web.setCustomValidity(j.website && !/^https?:\/\//i.test(j.website) ? "Website must start with https://" : "");
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        showMessage("Please fill in the highlighted boxes.", true);
+        return;
+      }
+      j.id = Date.now();
+      j.posted = today;
+      j.mine = true;
+      jobs.push(j);
+      save("jobs", jobs);
+      save("employer", { company: j.company, website: j.website });
+      try { localStorage.removeItem("ec_job_draft"); } catch (err) {}
+      form.reset();
+      prefillDefaults();
+      showMessage("");
+      areaFilter = "all";
+      buildTabs(document.getElementById("area-tabs"), "all", function (k) { areaFilter = k; renderJobs(); });
+      location.hash = "find";
+      setTimeout(function () { alert("Your vacancy \"" + j.title + "\" is now listed."); }, 50);
+    });
+    // Clear the custom error as soon as the person edits that box
+    ["f-apply", "f-salary-max", "f-website"].forEach(function (id) {
+      document.getElementById(id).addEventListener("input", function () { this.setCustomValidity(""); });
+    });
+
+    // ---------- Switching between "Find a job" and "Post a vacancy" ----------
+    function showView() {
+      var view = location.hash === "#post" ? "post" : "find";
+      document.getElementById("view-find").hidden = view !== "find";
+      document.getElementById("view-post").hidden = view !== "post";
+      document.querySelectorAll(".segmented button").forEach(function (b) {
+        b.classList.toggle("active", b.dataset.view === view);
+        b.setAttribute("aria-selected", b.dataset.view === view);
+      });
+      if (view === "find") renderJobs();
+    }
+    document.querySelectorAll(".segmented button").forEach(function (b) {
+      b.onclick = function () { location.hash = b.dataset.view; };
+    });
+    window.addEventListener("hashchange", showView);
+
+    renderTemplateSelect();
+    var draft = load("job_draft", null);
+    if (draft) fillForm(draft); else prefillDefaults();
+    refreshPreview();
+    showView();
+  </script>
+</body>
+</html>
