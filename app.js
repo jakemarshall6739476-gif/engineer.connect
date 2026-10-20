@@ -159,3 +159,18 @@ function addPreviewNotice() {
   main.insertBefore(note, main.firstChild);
 }
 addPreviewNotice();
+
+// ---------- Footer with the founder's details (bottom of every page) ----------
+var FOUNDER = { name: "Jake Marshall", email: "jake.marshall6739476@gmail.com" };
+
+function addFooter() {
+  if (!document.querySelector("main")) return;
+  var footer = document.createElement("footer");
+  footer.className = "site-footer";
+  footer.innerHTML = '<div class="founder"><span class="founder-label">Founder</span>' +
+    "<strong>" + escapeHtml(FOUNDER.name) + "</strong>" +
+    '<a href="mailto:' + escapeHtml(FOUNDER.email) + '">' + escapeHtml(FOUNDER.email) + "</a></div>" +
+    '<div class="meta">© ' + new Date().getFullYear() + " Engineer Connect</div>";
+  document.body.appendChild(footer);
+}
+addFooter();
