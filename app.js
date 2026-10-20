@@ -143,3 +143,19 @@ function addNewsTicker() {
   setInterval(load, 15 * 60 * 1000); // check for new headlines every 15 minutes
 }
 addNewsTicker();
+
+// ---------- "Early preview" notice (top of every page until dismissed) ----------
+// Until the site has a shared database, posts only live in each visitor's own browser.
+function addPreviewNotice() {
+  var main = document.querySelector("main");
+  if (!main || load("preview_dismissed", false)) return;
+  var note = document.createElement("div");
+  note.className = "preview-notice";
+  note.setAttribute("role", "note");
+  note.innerHTML = "<span><strong>Early preview.</strong> Ideas, connection requests and job adverts are saved " +
+    "on this device only for now, and the engineers, ideas and jobs shown are examples.</span>" +
+    '<button type="button" class="btn secondary">Got it</button>';
+  note.querySelector("button").onclick = function () { save("preview_dismissed", true); note.remove(); };
+  main.insertBefore(note, main.firstChild);
+}
+addPreviewNotice();

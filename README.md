@@ -22,7 +22,7 @@ The engineers on the Connections page are made-up examples. Real sign-up, shared
 and messaging need a server and a database, which is the next stage.
 
 ## When you change style.css or app.js
-Every page loads them as `style.css?v=11` and `app.js?v=11` (and `links.js?v=11` on the News page). Bump the number on all pages
+Every page loads them as `style.css?v=12` and `app.js?v=12` (and `links.js?v=12` on the News page). Bump the number on all pages
 after a change, so browsers fetch the new version instead of an old saved copy.
 
 ## The live news banner
@@ -30,6 +30,15 @@ The scrolling "Latest" banner under the top bar shows real headlines from scienc
 engineering sites (IEEE Spectrum, ScienceDaily, Tech Xplore, NASA, New Civil Engineer and more).
 - `update_news.py` reads those sites' news feeds and saves the newest headlines to `news.json`.
 - On this PC: double-click `Refresh news.bat` to get the latest headlines.
-- Online: `.github/workflows/news.yml` runs the script every hour on GitHub, so the banner keeps
-  itself up to date (this needs the site hosted from GitHub, for example GitHub Pages or Netlify linked to GitHub).
+- Online: the publishing job (below) runs the script every hour, so the banner keeps itself up to date.
 - To add or remove a news site, edit the `FEEDS` list at the top of `update_news.py`.
+
+## Publishing (GitHub Pages)
+The site lives at https://jakemarshall6739476.github.io/engineer-connect/
+- To update it: commit your changes, then `git push`. It's live about a minute later.
+- `.github/workflows/pages.yml` publishes the site on every push and again every hour (fresh headlines).
+  Only the website files are published: README, `update_news.py`, `Refresh news.bat` and `.claude/` are not.
+- To publish by hand: GitHub → Actions → "Publish site" → "Run workflow".
+- GitHub pauses the hourly job if the project has had no changes for 60 days. It sends an email;
+  switch it back on from the Actions tab.
+- Something wrong online? Undo the change (or go back to an earlier commit) and push again.

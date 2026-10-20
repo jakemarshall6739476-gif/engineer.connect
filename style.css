@@ -363,3 +363,13 @@ blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--acc
 .job-card.just-posted { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); animation: just-posted 1.2s ease 2; }
 @keyframes just-posted { 50% { box-shadow: 0 0 0 7px var(--accent-soft); } }
 @media (prefers-color-scheme: dark) { .notice { color: #4ccf88; } }
+
+/* "Early preview" notice at the top of each page */
+.preview-notice {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: -16px 0 24px; padding: 10px 14px;
+  background: var(--surface); border: 1px dashed var(--accent); border-radius: 12px;
+  font-size: 0.9rem; color: var(--muted);
+}
+.preview-notice strong { color: var(--text); }
+.preview-notice .btn { padding: 6px 14px; font-size: 0.85rem; }
