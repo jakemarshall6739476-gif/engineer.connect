@@ -34,7 +34,7 @@ engineering sites (IEEE Spectrum, ScienceDaily, Tech Xplore, NASA, New Civil Eng
 - To add or remove a news site, edit the `FEEDS` list at the top of `update_news.py`.
 
 ## Publishing (GitHub Pages)
-The site lives at https://jakemarshall6739476-gif.github.io/engineer-connect/
+The site lives at https://jakemarshall6739476-gif.github.io/engineer.connect/
 - To update it: commit your changes, then `git push`. It's live about a minute later.
 - `.github/workflows/pages.yml` publishes the site on every push and again every hour (fresh headlines).
   Only the website files are published: README, `update_news.py`, `Refresh news.bat` and `.claude/` are not.
