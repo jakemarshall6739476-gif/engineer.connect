@@ -36,6 +36,15 @@ jobs:
         run: python update_news.py
         continue-on-error: true   # if every feed is down, keep the headlines already saved
 
+      # Free Supabase projects pause after 7 days without use; a tiny hourly read keeps
+      # accounts and posts online. Uses the public (publishable) key from config.js.
+      - name: Keep the database awake
+        continue-on-error: true
+        run: |
+          URL=$(grep -o 'https://[a-z0-9]*\.supabase\.co' config.js)
+          KEY=$(grep -o 'sb_publishable_[A-Za-z0-9_-]*' config.js)
+          curl -fsS -o /dev/null "$URL/rest/v1/ideas?select=id&limit=1" -H "apikey: $KEY" && echo "Database is awake"
+
       - name: Gather the files visitors need
         run: |
           mkdir _site
