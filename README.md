@@ -26,11 +26,12 @@ Shared look: `style.css`. Shared code and starter content: `app.js`.
 - `supabase/schema.sql` creates the tables and security rules. Run it in Supabase -> SQL Editor
   after changing it (safe to run again).
 - Make someone an admin: Supabase -> Table Editor -> profiles -> tick `is_admin`.
-- Still to do: Ideas, Connections and Jobs are saved in each browser only until they're
-  switched over to the database; the people and jobs shown there are examples.
+- Ideas, Connections (profiles and requests) and Jobs (vacancies and templates) are shared through
+  the database. While a page has fewer than 3 real items, examples are shown too, marked "Example".
+  Unfinished job adverts (drafts) and your chosen area stay in your own browser.
 
 ## When you change style.css or app.js
-Every page loads them as `style.css?v=14` and `app.js?v=14` (and `links.js?v=14` on the News page). Bump the number on all pages
+Every page loads them as `style.css?v=15` and `app.js?v=15` (and `links.js?v=15` on the News page). Bump the number on all pages
 after a change, so browsers fetch the new version instead of an old saved copy.
 
 ## The live news banner

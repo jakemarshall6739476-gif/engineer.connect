@@ -148,14 +148,14 @@ addNewsTicker();
 // Until the site has a shared database, posts only live in each visitor's own browser.
 function addPreviewNotice() {
   var main = document.querySelector("main");
-  if (!main || load("preview_dismissed", false)) return;
+  if (!main || load("preview2_dismissed", false)) return;
   var note = document.createElement("div");
   note.className = "preview-notice";
   note.setAttribute("role", "note");
-  note.innerHTML = "<span><strong>Early preview.</strong> Ideas, connection requests and job adverts are saved " +
-    "on this device only for now, and the engineers, ideas and jobs shown are examples.</span>" +
+  note.innerHTML = "<span><strong>Early preview.</strong> Engineer Connect is brand new. Until more members join, " +
+    "some example engineers, ideas and jobs are shown too: they're marked <em>Example</em>.</span>" +
     '<button type="button" class="btn secondary">Got it</button>';
-  note.querySelector("button").onclick = function () { save("preview_dismissed", true); note.remove(); };
+  note.querySelector("button").onclick = function () { save("preview2_dismissed", true); note.remove(); };
   main.insertBefore(note, main.firstChild);
 }
 addPreviewNotice();

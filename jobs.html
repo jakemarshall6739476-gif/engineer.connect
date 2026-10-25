@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Jobs · Engineer Connect</title>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
   <header class="topbar">
@@ -44,6 +44,7 @@
 
     <!-- ================= Post a vacancy ================= -->
     <section id="view-post" hidden>
+      <p class="panel msg error" id="post-signin" hidden></p>
       <div class="panel template-bar">
         <div>
           <h2>Start from a template</h2>
@@ -160,17 +161,52 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
-  <script src="config.js?v=14"></script>
-  <script src="data.js?v=14"></script>
-  <script src="app.js?v=14"></script>
-  <script src="jobs.js?v=14"></script>
+  <script src="config.js?v=15"></script>
+  <script src="data.js?v=15"></script>
+  <script src="app.js?v=15"></script>
+  <script src="jobs.js?v=15"></script>
   <script>
     var me = currentDiscipline();
     showDisciplineChip(me);
 
-    var jobs = load("jobs", SAMPLE_JOBS);
-    var myTemplates = load("job_templates", []);
+    var realJobs = [];      // vacancies from the database
+    var jobs = [];          // what's shown: real vacancies, plus examples while there are few
+    var myTemplates = [];   // my saved templates: [{ id, name, data }]
     var form = document.getElementById("job-form");
+
+    // Database row <-> job advert. Filter fields are columns; the rest is kept in "details".
+    function fromRow(row) {
+      var user = EC.user();
+      return Object.assign({}, row.details || {}, {
+        id: row.id, title: row.title, company: row.company, location: row.location,
+        area: row.discipline, type: row.job_type, pattern: row.pattern,
+        closingDate: row.closing_date || "", posted: String(row.created_at).slice(0, 10),
+        mine: !!(user && row.owner === user.id)
+      });
+    }
+    function toRow(j) {
+      var details = Object.assign({}, j);
+      delete details.id; delete details.posted; delete details.mine;
+      return { title: j.title, company: j.company, location: j.location, discipline: j.area,
+               job_type: j.type, pattern: j.pattern, closing_date: j.closingDate || null, details: details };
+    }
+    function refreshJobs() {
+      return EC.listJobs().then(function (res) {
+        if (res.error) { document.getElementById("job-count").textContent = "Couldn't load vacancies just now. Please refresh the page."; return; }
+        realJobs = (res.data || []).map(fromRow);
+        jobs = realJobs.length >= 3 ? realJobs : realJobs.concat(SAMPLE_JOBS.map(function (s) {
+          return Object.assign({}, s, { id: "ex" + s.id, example: true });
+        }));
+        if (!document.getElementById("view-find").hidden) renderJobs();
+      });
+    }
+    function loadTemplates(selectName) {
+      return EC.listTemplates().then(function (res) {
+        myTemplates = res.data || [];
+        var i = selectName ? myTemplates.findIndex(function (t) { return t.name === selectName; }) : -1;
+        renderTemplateSelect(i !== -1 ? "m" + i : undefined);
+      });
+    }
     var TEMPLATE_FIELDS = ["title", "area", "level", "type", "pattern", "salaryMin", "salaryMax", "salaryPeriod", "summary",
       "responsibilities", "essentialSkills", "desirableSkills", "experience", "qualification", "registration", "clearance",
       "licence", "travel", "certs", "workingStyle", "rightToWork", "benefits"];
@@ -287,7 +323,8 @@
         ((j.benefits || []).length ? "<h3>What we offer</h3><ul class=\"benefits\">" + j.benefits.map(function (b) { return "<li>✓ " + escapeHtml(b) + "</li>"; }).join("") + "</ul>" : "") +
         "<h3>How to apply</h3>" +
         (j.applyNotes ? "<p>" + escapeHtml(j.applyNotes) + "</p>" : "") +
-        (href ? '<a class="btn" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' + (j.applyMethod === "link" ? "Apply on our website ↗" : "✉️ Apply by email") + "</a>"
+        (j.example ? '<p class="meta">This is an example advert, so there\'s nothing to apply for.</p>'
+         : href ? '<a class="btn" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' + (j.applyMethod === "link" ? "Apply on our website ↗" : "✉️ Apply by email") + "</a>"
               : '<p class="meta">Add an email address or web link for applications.</p>');
     }
 
@@ -316,8 +353,9 @@
       document.getElementById("job-count").textContent = list.length + (list.length === 1 ? " vacancy" : " vacancies");
       document.getElementById("jobs").innerHTML = list.length ? list.map(function (j) {
         var area = DISCIPLINES[j.area];
-        return '<article class="card job-card' + (j.id === justPostedId ? " just-posted" : "") + '" data-job="' + j.id + '">' +
-          '<div class="meta">' + (area ? area.icon + " " + area.name : "") + " · " + daysAgo(j.posted) + (j.mine ? ' · <strong>Your vacancy</strong>' : "") + "</div>" +
+        return '<article class="card job-card' + (j.id === justPostedId ? " just-posted" : "") + (j.example ? " example" : "") + '" data-job="' + j.id + '">' +
+          '<div class="meta">' + (area ? area.icon + " " + area.name : "") + " · " +
+            (j.example ? '<span class="tag">Example</span>' : daysAgo(j.posted)) + (j.mine ? ' · <strong>Your vacancy</strong>' : "") + "</div>" +
           "<h3>" + escapeHtml(j.title) + "</h3>" +
           '<div class="meta">' + escapeHtml(j.company) + " · " + escapeHtml(j.location) + "</div>" +
           '<div class="ad-pay small">💷 ' + escapeHtml(formatPay(j)) + "</div>" +
@@ -340,10 +378,12 @@
         document.getElementById("dialog-body").innerHTML = renderJobAd(job);
         dialog.showModal();
       }
-      if (remove && confirm("Remove this vacancy?")) {
-        jobs = jobs.filter(function (j) { return String(j.id) !== remove.dataset.remove; });
-        save("jobs", jobs);
-        renderJobs();
+      if (remove && confirm("Remove this vacancy? This can't be undone.")) {
+        remove.disabled = true;
+        EC.deleteJob(Number(remove.dataset.remove)).then(function (res) {
+          if (res.error) alert("Couldn't remove that just now. Please try again.");
+          refreshJobs();
+        });
       }
     };
     dialog.querySelector(".dialog-close").onclick = function () { dialog.close(); };
@@ -406,27 +446,32 @@
     document.getElementById("template-delete").onclick = function () {
       var v = document.getElementById("template-select").value;
       if (v.charAt(0) !== "m" || !confirm("Delete this template?")) return;
-      myTemplates.splice(+v.slice(1), 1);
-      save("job_templates", myTemplates);
-      renderTemplateSelect();
+      EC.deleteTemplate(myTemplates[+v.slice(1)].id).then(function (res) {
+        if (res.error) showMessage("Couldn't delete the template just now. Please try again.", true);
+        loadTemplates();
+      });
     };
     document.getElementById("template-save").onclick = function () {
       var nameInput = document.getElementById("template-name");
       var name = nameInput.value.trim() || document.getElementById("f-title").value.trim();
+      if (!EC.user()) { showMessage(EC.signInPrompt("save templates to your account"), true, true); return; }
       if (!name) { showMessage("Give the template a name (or fill in the job title) first.", true); nameInput.focus(); return; }
       var all = readForm(), data = {};
       TEMPLATE_FIELDS.forEach(function (f) { data[f] = all[f]; });
-      var existing = myTemplates.findIndex(function (t) { return t.name.toLowerCase() === name.toLowerCase(); });
-      if (existing !== -1) myTemplates[existing].data = data; else myTemplates.push({ name: name, data: data });
-      save("job_templates", myTemplates);
-      renderTemplateSelect("m" + (existing !== -1 ? existing : myTemplates.length - 1));
-      nameInput.value = "";
-      showMessage("Saved as template \"" + name + "\". Find it under \"Your templates\" at the top.");
+      // Saving under an existing name (any capitals) updates that template
+      var existing = myTemplates.find(function (t) { return t.name.toLowerCase() === name.toLowerCase(); });
+      if (existing) name = existing.name;
+      EC.saveTemplate(name.slice(0, 50), data).then(function (res) {
+        if (res.error) { showMessage("Couldn't save the template just now. Please try again.", true); return; }
+        nameInput.value = "";
+        loadTemplates(res.data.name);
+        showMessage("Saved as template \"" + res.data.name + "\". Find it under \"Your templates\" at the top.");
+      });
     };
 
-    function showMessage(text, isError) {
+    function showMessage(text, isError, isHtml) {
       var m = document.getElementById("form-message");
-      m.textContent = text;
+      if (isHtml) m.innerHTML = text; else m.textContent = text;
       m.className = "meta" + (isError ? " error" : " ok");
     }
 
@@ -458,25 +503,28 @@
         showMessage("Please fill in the highlighted boxes.", true);
         return;
       }
-      j.id = Date.now();
-      j.posted = today;
-      j.mine = true;
-      jobs.push(j);
-      save("jobs", jobs);
-      save("employer", { company: j.company, website: j.website });
-      try { localStorage.removeItem("ec_job_draft"); } catch (err) {}
-      form.reset();
-      prefillDefaults();
-      showMessage("");
-      // Clear any filters so the new vacancy is definitely in the list, then point it out
-      areaFilter = "all";
-      buildTabs(document.getElementById("area-tabs"), "all", function (k) { areaFilter = k; renderJobs(); });
-      ["search", "filter-type", "filter-pattern"].forEach(function (id) { document.getElementById(id).value = ""; });
-      justPostedId = j.id;
-      var notice = document.getElementById("job-notice");
-      notice.textContent = "✓ Your vacancy \"" + j.title + "\" is now listed. It's highlighted below.";
-      notice.hidden = false;
-      location.hash = "find";
+      if (!EC.user()) { showMessage(EC.signInPrompt("post your vacancy (your draft is kept)"), true, true); return; }
+      var btn = form.querySelector("[type=submit]");
+      btn.disabled = true;
+      showMessage("Posting…");
+      EC.postJob(toRow(j)).then(function (res) {
+        btn.disabled = false;
+        if (res.error) { showMessage("Couldn't post the vacancy just now. Please try again.", true); return; }
+        save("employer", { company: j.company, website: j.website });
+        try { localStorage.removeItem("ec_job_draft"); } catch (err) {}
+        form.reset();
+        prefillDefaults();
+        showMessage("");
+        // Clear any filters so the new vacancy is definitely in the list, then point it out
+        areaFilter = "all";
+        buildTabs(document.getElementById("area-tabs"), "all", function (k) { areaFilter = k; renderJobs(); });
+        ["search", "filter-type", "filter-pattern"].forEach(function (id) { document.getElementById(id).value = ""; });
+        justPostedId = res.data.id;
+        var notice = document.getElementById("job-notice");
+        notice.textContent = "✓ Your vacancy \"" + j.title + "\" is now listed for everyone. It's highlighted below.";
+        notice.hidden = false;
+        refreshJobs().then(function () { location.hash = "find"; });
+      });
     });
     // Clear the custom error as soon as the person edits that box
     ["f-apply", "f-salary-max", "f-website"].forEach(function (id) {
@@ -511,6 +559,14 @@
     if (draft) fillForm(draft); else prefillDefaults();
     refreshPreview();
     showView();
+
+    // Load vacancies and my templates now, and again whenever I sign in or out
+    EC.onChange(function (user) {
+      document.getElementById("post-signin").hidden = !!user;
+      document.getElementById("post-signin").innerHTML = EC.signInPrompt("post vacancies and save templates. You can fill in the form first: your draft is kept");
+      refreshJobs();
+      loadTemplates();
+    });
   </script>
 </body>
 </html>

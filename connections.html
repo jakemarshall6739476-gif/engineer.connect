@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Connections · Engineer Connect</title>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
   <header class="topbar">
@@ -24,6 +24,15 @@
       <p>Find engineers to learn from, work with, or swap ideas with.</p>
     </section>
 
+    <div class="panel" id="requests-panel" hidden>
+      <h2>Requests for you</h2>
+      <div id="incoming"></div>
+    </div>
+    <div class="panel" id="signed-out-panel" hidden>
+      <p class="meta" id="signed-out-text" style="margin:0"></p>
+    </div>
+    <p class="msg" id="list-msg" role="status"></p>
+
     <div class="toolbar">
       <div class="tabs" id="tabs"></div>
       <input type="search" id="search" placeholder="Search by name, skill or location…">
@@ -34,55 +43,132 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
-  <script src="config.js?v=14"></script>
-  <script src="data.js?v=14"></script>
-  <script src="app.js?v=14"></script>
+  <script src="config.js?v=15"></script>
+  <script src="data.js?v=15"></script>
+  <script src="app.js?v=15"></script>
   <script>
     var me = currentDiscipline();
     showDisciplineChip(me);
 
-    var requested = load("requested", []);
+    var people = [];        // real member profiles
+    var links = [];         // my connection requests (sent and received)
     var filter = me || "all";
+    var $ = function (id) { return document.getElementById(id); };
 
+    function message(html, ok) {
+      $("list-msg").innerHTML = html || "";
+      $("list-msg").className = "msg" + (html ? (ok ? " ok" : " error") : "");
+    }
     function initials(name) {
-      return name.split(" ").map(function (p) { return p[0]; }).join("").slice(0, 2);
+      return String(name || "?").split(/\s+/).map(function (p) { return p.charAt(0); }).join("").slice(0, 2).toUpperCase();
+    }
+    function nameOf(id) {
+      var p = people.find(function (x) { return x.id === id; });
+      return p ? p.name : "A member";
+    }
+    // My request with this person, whichever way round it was sent
+    function linkWith(id) {
+      return links.find(function (l) { return l.from_user === id || l.to_user === id; });
+    }
+
+    function others() {
+      var user = EC.user();
+      return people.filter(function (p) { return !user || p.id !== user.id; });
+    }
+    // While there are only a few members, show the examples too (clearly labelled)
+    function withExamples(list) {
+      if (others().length >= 3) return list;
+      return list.concat(SAMPLE_PEOPLE.map(function (s) {
+        return { id: "ex" + s.id, example: true, name: s.name, role: s.role, discipline: s.discipline,
+                 location: s.location, skills: s.skills, looking: s.looking };
+      }));
+    }
+
+    function buttonFor(p) {
+      var user = EC.user();
+      if (p.example) return '<span class="tag">Example</span>';
+      var l = linkWith(p.id);
+      if (!l) return '<button class="btn" data-connect="' + p.id + '">Connect</button>';
+      if (l.status === "accepted") return '<span class="btn secondary" aria-disabled="true">✓ Connected</span>';
+      if (user && l.to_user === user.id && l.status === "pending")
+        return '<button class="btn" data-answer="' + l.id + '" data-status="accepted">Accept</button>';
+      if (user && l.from_user === user.id) return '<button class="btn secondary" data-cancel="' + l.id + '" title="Click to cancel">Request sent</button>';
+      return "";
     }
 
     function render() {
-      var q = document.getElementById("search").value.toLowerCase();
-      var list = SAMPLE_PEOPLE
+      var user = EC.user();
+      var q = $("search").value.toLowerCase();
+      var list = withExamples(others())
         .filter(function (p) { return filter === "all" || p.discipline === filter; })
-        .filter(function (p) { return (p.name + " " + p.role + " " + p.location + " " + p.skills.join(" ")).toLowerCase().indexOf(q) !== -1; });
+        .filter(function (p) {
+          return [p.name, p.role, p.location, p.looking].concat(p.skills || []).join(" ").toLowerCase().indexOf(q) !== -1;
+        });
 
-      document.getElementById("people").innerHTML = list.length ? list.map(function (p) {
-        var sent = requested.indexOf(p.id) !== -1;
-        return '<article class="card">' +
-          '<div class="person"><div class="avatar">' + initials(p.name) + "</div>" +
-          "<div><h3>" + p.name + '</h3><div class="meta">' + p.role + " · " + p.location + "</div></div></div>" +
-          '<div class="meta">' + DISCIPLINES[p.discipline].icon + " " + DISCIPLINES[p.discipline].name + "</div>" +
-          "<p><strong>Looking for:</strong> " + p.looking + "</p>" +
-          '<div class="tags">' + p.skills.map(function (s) { return '<span class="tag">' + s + "</span>"; }).join("") + "</div>" +
-          '<div class="card-foot"><span></span>' +
-          '<button class="btn ' + (sent ? "secondary" : "") + '" data-connect="' + p.id + '">' + (sent ? "✓ Request sent" : "Connect") + "</button></div>" +
+      $("people").innerHTML = list.length ? list.map(function (p) {
+        var area = DISCIPLINES[p.discipline];
+        var sub = [p.role, p.location].filter(Boolean).map(escapeHtml).join(" · ");
+        return '<article class="card' + (p.example ? " example" : "") + '">' +
+          '<div class="person"><div class="avatar">' + escapeHtml(initials(p.name)) + "</div>" +
+          "<div><h3>" + escapeHtml(p.name) + '</h3><div class="meta">' + sub + "</div></div></div>" +
+          (area ? '<div class="meta">' + area.icon + " " + area.name + "</div>" : "") +
+          (p.looking ? "<p><strong>Looking for:</strong> " + escapeHtml(p.looking) + "</p>" : "") +
+          '<div class="tags">' + (p.skills || []).map(function (s) { return '<span class="tag">' + escapeHtml(s) + "</span>"; }).join("") + "</div>" +
+          '<div class="card-foot"><span></span>' + buttonFor(p) + "</div>" +
           "</article>";
       }).join("") : '<div class="empty">No engineers match that search yet.</div>';
+
+      // Requests waiting for my answer
+      var incoming = user ? links.filter(function (l) { return l.to_user === user.id && l.status === "pending"; }) : [];
+      $("requests-panel").hidden = !incoming.length;
+      $("incoming").innerHTML = incoming.map(function (l) {
+        return '<div class="row request-row"><span><strong>' + escapeHtml(nameOf(l.from_user)) + "</strong> would like to connect.</span>" +
+          '<span class="row" style="gap:8px; flex:0 0 auto">' +
+          '<button class="btn secondary" data-answer="' + l.id + '" data-status="declined">Decline</button>' +
+          '<button class="btn" data-answer="' + l.id + '" data-status="accepted">Accept</button></span></div>';
+      }).join("");
     }
 
-    buildTabs(document.getElementById("tabs"), filter, function (key) { filter = key; render(); });
-    document.getElementById("search").oninput = render;
+    function refresh() {
+      return Promise.all([EC.listProfiles(), EC.myConnections()]).then(function (res) {
+        if (res[0].error) { message("Couldn't load engineers just now. Please refresh the page."); return; }
+        people = res[0].data || [];
+        links = res[1].data || [];
+        render();
+      });
+    }
 
-    // Send / cancel a connection request
-    document.getElementById("people").onclick = function (e) {
-      var btn = e.target.closest("[data-connect]");
-      if (!btn) return;
-      var id = Number(btn.dataset.connect);
-      var at = requested.indexOf(id);
-      if (at === -1) requested.push(id); else requested.splice(at, 1);
-      save("requested", requested);
-      render();
-    };
+    buildTabs($("tabs"), filter, function (key) { filter = key; render(); });
+    $("search").oninput = render;
 
-    render();
+    EC.onChange(function (user, profile) {
+      $("signed-out-panel").hidden = !!user;
+      $("signed-out-text").innerHTML = EC.signInPrompt("connect with engineers and appear on this page yourself");
+      if (user && profile && !profile.name) message('Add your name on <a href="account.html">My account</a> so other engineers can find you.');
+      refresh();
+    });
+
+    function done(res, okText) {
+      if (res.error) message("Couldn't save that just now. Please try again.");
+      else message(okText || "", true);
+      refresh();
+    }
+
+    // Connect, cancel, accept and decline
+    document.addEventListener("click", function (e) {
+      var connect = e.target.closest("[data-connect]"),
+          cancel = e.target.closest("[data-cancel]"),
+          answer = e.target.closest("[data-answer]");
+      if (!connect && !cancel && !answer) return;
+      if (!EC.user()) { message(EC.signInPrompt("connect with engineers")); return; }
+      var btn = connect || cancel || answer;
+      btn.disabled = true;
+      if (connect) EC.sendConnection(connect.dataset.connect).then(function (r) { done(r, "✓ Request sent to " + escapeHtml(nameOf(connect.dataset.connect)) + "."); });
+      if (cancel) EC.removeConnection(Number(cancel.dataset.cancel)).then(function (r) { done(r, "Request cancelled."); });
+      if (answer) EC.answerConnection(Number(answer.dataset.answer), answer.dataset.status).then(function (r) {
+        done(r, answer.dataset.status === "accepted" ? "✓ You're now connected. Messaging is coming soon." : "Request declined.");
+      });
+    });
   </script>
 </body>
 </html>

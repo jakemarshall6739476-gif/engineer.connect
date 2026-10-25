@@ -413,3 +413,8 @@ blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--acc
 .prose ul { padding-left: 20px; margin: 0 0 8px; }
 .prose li { margin: 4px 0; }
 .site-footer .footer-links { display: flex; gap: 14px; }
+
+/* Example cards (shown until there's enough real content) and request rows */
+.card.example { border-style: dashed; opacity: 0.85; }
+.request-row { justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid var(--border); }
+.request-row:first-child { border-top: none; }

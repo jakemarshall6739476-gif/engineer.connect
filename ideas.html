@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ideas · Engineer Connect</title>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
   <header class="topbar">
@@ -24,7 +24,12 @@
       <p>Share what you're working on and back the ideas you like.</p>
     </section>
 
-    <form class="panel" id="idea-form">
+    <div class="panel" id="signed-out-panel" hidden>
+      <h2>Share an idea</h2>
+      <p class="meta" id="signed-out-text"></p>
+    </div>
+
+    <form class="panel" id="idea-form" hidden>
       <h2>Share an idea</h2>
       <label for="title">Title</label>
       <input id="title" required maxlength="100" placeholder="e.g. Cheaper way to test weld quality">
@@ -34,11 +39,12 @@
       <select id="area"></select>
       <label for="tags">Tags (separate with commas)</label>
       <input id="tags" placeholder="e.g. welding, sensors">
-      <label for="author">Your name</label>
-      <input id="author" required maxlength="40">
-      <div style="margin-top:16px"><button class="btn" type="submit">Post idea</button></div>
+      <p class="msg" id="idea-msg" role="status"></p>
+      <div style="margin-top:12px"><button class="btn" type="submit">Post idea</button></div>
+      <p class="small-print" id="posting-as"></p>
     </form>
 
+    <p class="msg" id="list-msg" role="status"></p>
     <div class="toolbar">
       <div class="tabs" id="tabs"></div>
       <input type="search" id="search" placeholder="Search ideas…">
@@ -49,86 +55,134 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
-  <script src="config.js?v=14"></script>
-  <script src="data.js?v=14"></script>
-  <script src="app.js?v=14"></script>
+  <script src="config.js?v=15"></script>
+  <script src="data.js?v=15"></script>
+  <script src="app.js?v=15"></script>
   <script>
     var me = currentDiscipline();
     showDisciplineChip(me);
 
-    var ideas = load("ideas", SAMPLE_IDEAS);
-    // Add any starter ideas that were added after this browser first saved its list
-    SAMPLE_IDEAS.forEach(function (s) {
-      if (!ideas.some(function (i) { return i.id === s.id; })) ideas.push(s);
-    });
-    var voted = load("voted", []);
+    var ideas = [];         // real ideas from the database
+    var backed = [];        // ids of ideas I've backed
     var filter = me || "all";
-
-    document.getElementById("author").value = load("name", "");
+    var $ = function (id) { return document.getElementById(id); };
 
     // Area dropdown on the form, starting on the area the user picked
-    var areaSelect = document.getElementById("area");
+    var areaSelect = $("area");
     areaSelect.innerHTML = Object.keys(DISCIPLINES).map(function (k) {
       return '<option value="' + k + '">' + DISCIPLINES[k].icon + " " + DISCIPLINES[k].name + "</option>";
     }).join("");
     areaSelect.value = me || "mechanical";
 
-    function render() {
-      var q = document.getElementById("search").value.toLowerCase();
-      var list = ideas
-        .filter(function (i) { return filter === "all" || i.discipline === filter; })
-        .filter(function (i) { return (i.title + " " + i.body + " " + i.tags.join(" ")).toLowerCase().indexOf(q) !== -1; })
-        .sort(function (a, b) { return b.votes - a.votes; });
+    function message(id, html, ok) {
+      $(id).innerHTML = html || "";
+      $(id).className = "msg" + (html ? (ok ? " ok" : " error") : "");
+    }
 
-      document.getElementById("ideas").innerHTML = list.length ? list.map(function (i) {
-        var hasVoted = voted.indexOf(i.id) !== -1;
-        return '<article class="card">' +
-          '<div class="meta">' + DISCIPLINES[i.discipline].icon + " " + DISCIPLINES[i.discipline].name + " · by " + escapeHtml(i.author) + "</div>" +
+    // While there are only a few real ideas, show the examples too (clearly labelled)
+    function withExamples(list) {
+      if (ideas.length >= 3) return list;
+      return list.concat(SAMPLE_IDEAS.map(function (s) {
+        return { id: "ex" + s.id, example: true, discipline: s.discipline, title: s.title, body: s.body,
+                 tags: s.tags, author_name: s.author, backers: s.votes };
+      }));
+    }
+
+    function render() {
+      var q = $("search").value.toLowerCase();
+      var user = EC.user();
+      var list = withExamples(ideas.slice())
+        .filter(function (i) { return filter === "all" || i.discipline === filter; })
+        .filter(function (i) { return (i.title + " " + i.body + " " + (i.tags || []).join(" ")).toLowerCase().indexOf(q) !== -1; })
+        .sort(function (a, b) { return (a.example - b.example) || (b.backers - a.backers); });
+
+      $("ideas").innerHTML = list.length ? list.map(function (i) {
+        var area = DISCIPLINES[i.discipline];
+        var mine = user && i.author === user.id;
+        var hasBacked = backed.indexOf(i.id) !== -1;
+        var foot = i.example
+          ? '<span class="meta">' + i.backers + ' backing</span><span class="tag">Example</span>'
+          : '<span class="meta">' + i.backers + " backing</span>" +
+            '<span class="row" style="gap:8px">' +
+              (mine ? '<button class="btn secondary" data-delete="' + i.id + '">Delete</button>' : "") +
+              '<button class="btn ' + (hasBacked ? "" : "secondary") + '" data-back="' + i.id + '">' + (hasBacked ? "✓ Backed" : "👍 Back this") + "</button>" +
+            "</span>";
+        return '<article class="card' + (i.example ? " example" : "") + '">' +
+          '<div class="meta">' + (area ? area.icon + " " + area.name : "") + " · by " + escapeHtml(i.author_name || "Member") + (mine ? " (you)" : "") + "</div>" +
           "<h3>" + escapeHtml(i.title) + "</h3>" +
           "<p>" + escapeHtml(i.body) + "</p>" +
-          '<div class="tags">' + i.tags.map(function (t) { return '<span class="tag">' + escapeHtml(t) + "</span>"; }).join("") + "</div>" +
-          '<div class="card-foot"><span class="meta">' + i.votes + " backing</span>" +
-          '<button class="btn ' + (hasVoted ? "" : "secondary") + '" data-vote="' + i.id + '">' + (hasVoted ? "✓ Backed" : "👍 Back this") + "</button></div>" +
+          '<div class="tags">' + (i.tags || []).map(function (t) { return '<span class="tag">' + escapeHtml(t) + "</span>"; }).join("") + "</div>" +
+          '<div class="card-foot">' + foot + "</div>" +
           "</article>";
       }).join("") : '<div class="empty">No ideas here yet. Be the first to share one!</div>';
     }
 
-    buildTabs(document.getElementById("tabs"), filter, function (key) { filter = key; render(); });
-    document.getElementById("search").oninput = render;
+    function refresh() {
+      return Promise.all([EC.listIdeas(), EC.myBackedIdeaIds()]).then(function (res) {
+        if (res[0].error) { message("list-msg", "Couldn't load ideas just now. Please refresh the page."); return; }
+        message("list-msg", "");
+        ideas = res[0].data || [];
+        backed = res[1].data || [];
+        render();
+      });
+    }
 
-    // Back / un-back an idea
-    document.getElementById("ideas").onclick = function (e) {
-      var btn = e.target.closest("[data-vote]");
-      if (!btn) return;
-      var id = Number(btn.dataset.vote);
-      var idea = ideas.find(function (i) { return i.id === id; });
-      var at = voted.indexOf(id);
-      if (at === -1) { voted.push(id); idea.votes++; } else { voted.splice(at, 1); idea.votes--; }
-      save("ideas", ideas); save("voted", voted);
-      render();
+    buildTabs($("tabs"), filter, function (key) { filter = key; render(); });
+    $("search").oninput = render;
+
+    // Show the form to members, a sign-in prompt to everyone else
+    EC.onChange(function (user, profile) {
+      $("idea-form").hidden = !user;
+      $("signed-out-panel").hidden = !!user;
+      $("signed-out-text").innerHTML = EC.signInPrompt("share your own ideas and back other people's");
+      $("posting-as").textContent = user ? "Posting as " + ((profile && profile.name) || "you") + ". You can delete your ideas at any time." : "";
+      refresh();
+    });
+
+    // Back / un-back, and delete your own ideas
+    $("ideas").onclick = function (e) {
+      var back = e.target.closest("[data-back]"), del = e.target.closest("[data-delete]");
+      if (back) {
+        if (!EC.user()) { message("list-msg", EC.signInPrompt("back ideas")); return; }
+        var id = Number(back.dataset.back);
+        back.disabled = true;
+        var undo = backed.indexOf(id) !== -1;
+        (undo ? EC.unbackIdea(id) : EC.backIdea(id)).then(function (res) {
+          if (res.error) message("list-msg", "Couldn't save that just now. Please try again.");
+          refresh();
+        });
+      }
+      if (del && confirm("Delete this idea? This can't be undone.")) {
+        EC.deleteIdea(Number(del.dataset.delete)).then(function (res) {
+          if (res.error) message("list-msg", "Couldn't delete that just now. Please try again.");
+          refresh();
+        });
+      }
     };
 
     // Post a new idea
-    document.getElementById("idea-form").onsubmit = function (e) {
+    $("idea-form").onsubmit = function (e) {
       e.preventDefault();
-      var author = document.getElementById("author").value.trim();
-      ideas.push({
-        id: Date.now(),
+      var title = $("title").value.trim(), body = $("body").value.trim();
+      if (!title || !body) { message("idea-msg", "Please give your idea a title and a description."); return; }
+      var btn = this.querySelector("[type=submit]");
+      btn.disabled = true;
+      EC.postIdea({
         discipline: areaSelect.value,
-        title: document.getElementById("title").value.trim(),
-        body: document.getElementById("body").value.trim(),
-        tags: document.getElementById("tags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean),
-        author: author,
-        votes: 0
+        title: title,
+        body: body,
+        tags: $("tags").value.split(",").map(function (t) { return t.trim(); }).filter(Boolean).slice(0, 10)
+      }).then(function (res) {
+        btn.disabled = false;
+        if (res.error) { message("idea-msg", "Couldn't post your idea just now. Please try again."); return; }
+        e.target.reset();
+        areaSelect.value = me || "mechanical";
+        message("idea-msg", "✓ Your idea is posted. Everyone can see it now.", true);
+        filter = "all";
+        buildTabs($("tabs"), "all", function (key) { filter = key; render(); });
+        refresh();
       });
-      save("ideas", ideas); save("name", author);
-      e.target.reset();
-      document.getElementById("author").value = author;
-      areaSelect.value = me || "mechanical";
-      render();
     };
-
-    render();
   </script>
 </body>
 </html>
