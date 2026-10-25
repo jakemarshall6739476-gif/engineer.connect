@@ -388,3 +388,28 @@ blockquote { margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--acc
 }
 .founder a { word-break: break-all; }
 @media (max-width: 600px) { .site-footer { padding: 16px; } }
+
+/* Account button in the top bar */
+.account-chip { background: var(--accent); color: #fff; }
+.account-chip.current { box-shadow: 0 0 0 2px var(--accent-soft); }
+.topbar .chip + .chip { margin-left: -4px; }
+
+/* Messages under forms (account page and others) */
+.msg { min-height: 1.2em; margin: 10px 0 0; font-size: 0.92rem; }
+.msg.error { color: #d93b3b; }
+.msg.ok { color: #1f9d55; }
+@media (prefers-color-scheme: dark) { .msg.ok { color: #4ccf88; } .msg.error { color: #ff7a7a; } }
+
+/* Account page */
+.narrow { max-width: 560px; margin: 0 auto; }
+.danger { border-color: rgba(217, 59, 59, 0.5); }
+.btn.danger-btn { background: #d93b3b; color: #fff; }
+.small-print { font-size: 0.85rem; color: var(--muted); }
+
+/* Long text pages (privacy, terms) */
+.prose h2 { font-size: 1.1rem; margin: 22px 0 6px; }
+.prose h2:first-child { margin-top: 0; }
+.prose p, .prose li { color: var(--text); }
+.prose ul { padding-left: 20px; margin: 0 0 8px; }
+.prose li { margin: 4px 0; }
+.site-footer .footer-links { display: flex; gap: 14px; }

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terms · Engineer Connect</title>
+  <link rel="stylesheet" href="style.css?v=14">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <nav class="nav">
+      <a href="ideas.html">Ideas</a>
+      <a href="connections.html">Connections</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="news.html">News & Links</a>
+    </nav>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main class="narrow">
+    <section class="hero">
+      <h1>Terms of use</h1>
+      <p>Last updated 25 October 2026</p>
+    </section>
+
+    <article class="panel prose">
+      <p>Engineer Connect is a free community for engineers, run by Jake Marshall. By creating an account you agree to these terms.</p>
+
+      <h2>Your account</h2>
+      <ul>
+        <li>You must be 16 or over and give your real name.</li>
+        <li>Keep your password private. You're responsible for what's posted from your account.</li>
+        <li>You can delete your account at any time on the <a href="account.html">My account</a> page.</li>
+      </ul>
+
+      <h2>What you can post</h2>
+      <ul>
+        <li>Be respectful. No harassment, discrimination, threats or offensive content.</li>
+        <li>No spam, scams or unrelated advertising.</li>
+        <li>Only share ideas, drawings or information you have the right to share. Don't post anything confidential belonging to your employer or anyone else.</li>
+        <li>Ideas you post are public. If an idea is commercially valuable, think about protecting it before sharing it.</li>
+      </ul>
+
+      <h2>Job adverts</h2>
+      <ul>
+        <li>Adverts must be for real vacancies and describe the job and pay honestly.</li>
+        <li>Adverts must follow UK employment law, including the Equality Act 2010: ask about skills, experience and qualifications, not age, gender, religion, health or other personal traits.</li>
+        <li>Engineer Connect isn't a recruitment agency and isn't part of any hiring decision. Applications go directly to the employer.</li>
+      </ul>
+
+      <h2>Our part</h2>
+      <ul>
+        <li>We may remove posts or close accounts that break these terms.</li>
+        <li>We provide the site as it is, and can't promise it will always be available or error-free. We're not responsible for what other members post or for agreements you make with them. Nothing in these terms limits rights you have by law.</li>
+        <li>We may update these terms and will show the date of the latest change at the top.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>Questions or something to report: <a class="founder-email"></a>. These terms are governed by the law of England and Wales.</p>
+    </article>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
+  <script src="config.js?v=14"></script>
+  <script src="data.js?v=14"></script>
+  <script src="app.js?v=14"></script>
+  <script>
+    showDisciplineChip(currentDiscipline());
+    document.querySelectorAll(".founder-email").forEach(function (a) {
+      a.href = "mailto:" + FOUNDER.email;
+      a.textContent = FOUNDER.email;
+    });
+  </script>
+</body>
+</html>

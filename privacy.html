@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy notice · Engineer Connect</title>
+  <link rel="stylesheet" href="style.css?v=14">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <nav class="nav">
+      <a href="ideas.html">Ideas</a>
+      <a href="connections.html">Connections</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="news.html">News & Links</a>
+    </nav>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main class="narrow">
+    <section class="hero">
+      <h1>Privacy notice</h1>
+      <p>Last updated 25 October 2026</p>
+    </section>
+
+    <article class="panel prose">
+      <h2>Who we are</h2>
+      <p>Engineer Connect is run by Jake Marshall (the "data controller"). Contact: <a class="founder-email"></a>.</p>
+
+      <h2>What we collect</h2>
+      <ul>
+        <li><strong>Your account:</strong> your email address and password. Passwords are stored scrambled (hashed); nobody can read them.</li>
+        <li><strong>Your profile:</strong> name, job title, engineering area, town or city, skills and what you're looking for. You choose what to fill in.</li>
+        <li><strong>What you post:</strong> ideas, ideas you back, connection requests, job adverts and saved job templates.</li>
+        <li><strong>On your device only:</strong> your chosen area and a few display settings are kept in your browser's storage and never sent to us.</li>
+      </ul>
+
+      <h2>Why we use it</h2>
+      <ul>
+        <li>To run your account and show your profile and posts to other members (so we can provide the service you signed up for).</li>
+        <li>To keep the site safe, for example removing spam or abuse (our legitimate interest).</li>
+      </ul>
+      <p>We don't sell your data, show adverts based on it, or use tracking cookies.</p>
+
+      <h2>Who can see it</h2>
+      <ul>
+        <li>Your profile and posts can be seen by anyone visiting the site, unless you untick "Show my profile on the Connections page".</li>
+        <li>Connection requests can only be seen by you and the other person.</li>
+        <li>Your email address is never shown to other members.</li>
+      </ul>
+
+      <h2>Where it's stored</h2>
+      <ul>
+        <li>Accounts and posts are stored with <strong>Supabase</strong>, on servers in London, UK.</li>
+        <li>The website itself is hosted by <strong>GitHub Pages</strong>, and some code is delivered by <strong>jsDelivr</strong>. Like any website host, they may log your IP address to deliver pages and protect against attacks.</li>
+        <li>Links to news stories and other websites take you to sites with their own privacy policies.</li>
+      </ul>
+
+      <h2>How long we keep it</h2>
+      <p>Until you delete your account. Deleting your account (on the <a href="account.html">My account</a> page) permanently removes your account, profile and everything you posted.</p>
+
+      <h2>Your rights</h2>
+      <p>You can see, correct or delete your information at any time on the <a href="account.html">My account</a> page, or email us to ask for a copy of it. If you're unhappy with how we handle your data, you can complain to the Information Commissioner's Office at <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noopener">ico.org.uk</a>.</p>
+    </article>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
+  <script src="config.js?v=14"></script>
+  <script src="data.js?v=14"></script>
+  <script src="app.js?v=14"></script>
+  <script>
+    showDisciplineChip(currentDiscipline());
+    document.querySelectorAll(".founder-email").forEach(function (a) {
+      a.href = "mailto:" + FOUNDER.email;
+      a.textContent = FOUNDER.email;
+    });
+  </script>
+</body>
+</html>

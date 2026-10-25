@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Engineer Connect</title>
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
   <!-- Opening screen: plays once per visit, click or press any key to skip -->
@@ -41,7 +41,10 @@
     <div class="choices" id="disciplines"></div>
   </main>
 
-  <script src="app.js?v=13"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
+  <script src="config.js?v=14"></script>
+  <script src="data.js?v=14"></script>
+  <script src="app.js?v=14"></script>
   <script>
     // Opening screen: only the first time the site is opened in a visit.
     (function () {

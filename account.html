@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My account · Engineer Connect</title>
+  <link rel="stylesheet" href="style.css?v=14">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">Engineer<span>Connect</span></a>
+    <nav class="nav">
+      <a href="ideas.html">Ideas</a>
+      <a href="connections.html">Connections</a>
+      <a href="jobs.html">Jobs</a>
+      <a href="news.html">News & Links</a>
+    </nav>
+    <a class="chip" id="discipline-chip" hidden></a>
+  </header>
+
+  <main class="narrow">
+    <section class="hero">
+      <h1 id="page-title">👤 My account</h1>
+      <p id="page-subtitle">Join Engineer Connect to share ideas, connect with engineers and post jobs.</p>
+    </section>
+
+    <p class="panel msg" id="offline" hidden>Accounts aren't available right now. Please try again later.</p>
+    <p class="notice" id="banner" role="status" hidden></p>
+
+    <!-- ===== Signed out: sign in or create an account ===== -->
+    <section id="view-signed-out" hidden>
+      <div class="segmented" role="tablist">
+        <button type="button" role="tab" data-tab="signin" class="active">Sign in</button>
+        <button type="button" role="tab" data-tab="signup">Create account</button>
+      </div>
+
+      <form class="panel" id="signin-form" novalidate>
+        <div class="field"><label for="si-email">Email</label><input id="si-email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="si-password">Password</label><input id="si-password" type="password" autocomplete="current-password" required></div>
+        <p class="msg" id="signin-msg" role="status"></p>
+        <div class="row" style="justify-content: space-between; margin-top: 8px">
+          <button type="button" class="btn secondary" id="forgot">Forgot password?</button>
+          <button type="submit" class="btn">Sign in</button>
+        </div>
+      </form>
+
+      <form class="panel" id="signup-form" novalidate hidden>
+        <div class="field"><label for="su-name">Your name</label><input id="su-name" autocomplete="name" required maxlength="60"></div>
+        <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="su-password">Password <span class="hint">(at least 8 characters)</span></label><input id="su-password" type="password" autocomplete="new-password" required minlength="8"></div>
+        <label class="check"><input type="checkbox" id="su-terms" required> I agree to the <a href="terms.html" target="_blank">Terms</a> and have read the <a href="privacy.html" target="_blank">Privacy notice</a></label>
+        <p class="msg" id="signup-msg" role="status"></p>
+        <div class="row" style="justify-content: flex-end; margin-top: 8px">
+          <button type="submit" class="btn">Create account</button>
+        </div>
+        <p class="small-print">We'll email you a link to confirm your address before you can sign in.</p>
+      </form>
+    </section>
+
+    <!-- ===== Choosing a new password (from the "forgot password" email) ===== -->
+    <form class="panel" id="reset-form" novalidate hidden>
+      <h2>Choose a new password</h2>
+      <div class="field"><label for="rs-password">New password <span class="hint">(at least 8 characters)</span></label><input id="rs-password" type="password" autocomplete="new-password" required minlength="8"></div>
+      <p class="msg" id="reset-msg" role="status"></p>
+      <div class="row" style="justify-content: flex-end; margin-top: 8px"><button type="submit" class="btn">Save new password</button></div>
+    </form>
+
+    <!-- ===== Signed in: profile ===== -->
+    <section id="view-profile" hidden>
+      <form class="panel" id="profile-form" novalidate>
+        <h2>Your profile</h2>
+        <p class="meta">This is what other engineers see on the Connections page.</p>
+        <div class="field"><label for="pf-name">Name *</label><input id="pf-name" required maxlength="60"></div>
+        <div class="field"><label for="pf-role">Job title</label><input id="pf-role" maxlength="80" placeholder="e.g. Design Engineer, Welder Fabricator"></div>
+        <div class="row">
+          <div class="field"><label for="pf-area">Engineering area</label><select id="pf-area"></select></div>
+          <div class="field"><label for="pf-location">Town or city</label><input id="pf-location" maxlength="60"></div>
+        </div>
+        <div class="field"><label for="pf-skills">Skills <span class="hint">(separate with commas)</span></label><input id="pf-skills" placeholder="e.g. SolidWorks, TIG welding, PLC"></div>
+        <div class="field"><label for="pf-looking">What you're looking for</label><input id="pf-looking" maxlength="200" placeholder="e.g. A partner for a robotics side project"></div>
+        <label class="check"><input type="checkbox" id="pf-visible"> Show my profile on the Connections page</label>
+        <p class="msg" id="profile-msg" role="status"></p>
+        <div class="row" style="justify-content: space-between; margin-top: 8px">
+          <button type="button" class="btn secondary" id="sign-out">Sign out</button>
+          <button type="submit" class="btn">Save profile</button>
+        </div>
+        <p class="small-print" id="signed-in-as"></p>
+      </form>
+
+      <div class="panel danger">
+        <h2>Delete my account</h2>
+        <p class="meta">This permanently removes your account, profile, ideas, connection requests and job adverts. It can't be undone.</p>
+        <div class="row">
+          <input id="delete-confirm" placeholder='Type DELETE to confirm' aria-label="Type DELETE to confirm">
+          <button type="button" class="btn danger-btn" id="delete-account">Delete account</button>
+        </div>
+        <p class="msg" id="delete-msg" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.min.js"></script>
+  <script src="config.js?v=14"></script>
+  <script src="data.js?v=14"></script>
+  <script src="app.js?v=14"></script>
+  <script>
+    showDisciplineChip(currentDiscipline());
+    var $ = function (id) { return document.getElementById(id); };
+
+    function message(id, text, ok) {
+      var el = $(id);
+      el.textContent = text || "";
+      el.className = "msg" + (text ? (ok ? " ok" : " error") : "");
+    }
+    // Turn the database's technical messages into plain English
+    function friendly(err) {
+      var m = (err && err.message) || String(err || "");
+      if (/invalid login/i.test(m)) return "Wrong email or password.";
+      if (/not confirmed/i.test(m)) return "Please confirm your email first: check your inbox (and spam folder) for our link.";
+      if (/already registered|already been registered/i.test(m)) return "There's already an account with that email. Try signing in instead.";
+      if (/rate limit|too many/i.test(m)) return "Too many attempts just now. Please wait a while and try again.";
+      if (/password/i.test(m) && /characters|short|weak/i.test(m)) return "That password is too short or too easy to guess. Use at least 8 characters.";
+      if (/fetch|network/i.test(m)) return "Couldn't reach the server. Check your internet connection and try again.";
+      return "Something went wrong: " + m;
+    }
+    function busy(button, on) { button.disabled = on; }
+
+    if (!EC.available) {
+      $("offline").hidden = false;
+    }
+
+    // Area drop-down
+    $("pf-area").innerHTML = '<option value="">Choose…</option>' + Object.keys(DISCIPLINES).map(function (k) {
+      return '<option value="' + k + '">' + DISCIPLINES[k].icon + " " + DISCIPLINES[k].name + "</option>";
+    }).join("");
+
+    // Sign in / Create account tabs
+    document.querySelectorAll("[data-tab]").forEach(function (b) {
+      b.onclick = function () {
+        document.querySelectorAll("[data-tab]").forEach(function (x) { x.classList.toggle("active", x === b); });
+        $("signin-form").hidden = b.dataset.tab !== "signin";
+        $("signup-form").hidden = b.dataset.tab !== "signup";
+      };
+    });
+
+    var recovering = /[?&]reset=1/.test(location.search);
+
+    function showViews(user, profile) {
+      if (!EC.available) return;
+      $("reset-form").hidden = !(recovering && user);
+      $("view-signed-out").hidden = !!user;
+      $("view-profile").hidden = !user || (recovering && !!user);
+      $("page-subtitle").textContent = user
+        ? "Keep your profile up to date so the right engineers can find you."
+        : "Join Engineer Connect to share ideas, connect with engineers and post jobs.";
+      if (user) fillProfile(user, profile || {});
+    }
+
+    function fillProfile(user, p) {
+      $("pf-name").value = p.name || "";
+      $("pf-role").value = p.role || "";
+      $("pf-area").value = p.discipline || "";
+      $("pf-location").value = p.location || "";
+      $("pf-skills").value = (p.skills || []).join(", ");
+      $("pf-looking").value = p.looking || "";
+      $("pf-visible").checked = p.visible !== false;
+      $("signed-in-as").textContent = "Signed in as " + user.email;
+    }
+
+    var watcher = showViews;
+    watcher.onRecovery = function () { recovering = true; showViews(EC.user(), EC.profile()); };
+    EC.onChange(watcher);
+
+    // Messages after following a link from an email
+    if (/[?&]welcome=1/.test(location.search)) {
+      $("banner").textContent = "✓ Your email is confirmed. Welcome to Engineer Connect! Fill in your profile below.";
+      $("banner").hidden = false;
+    }
+
+    // ----- Sign in -----
+    $("signin-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = $("si-email").value.trim(), password = $("si-password").value;
+      if (!email || !password) { message("signin-msg", "Enter your email and password."); return; }
+      var btn = e.submitter || this.querySelector("[type=submit]");
+      busy(btn, true);
+      EC.signIn(email, password).then(function (res) {
+        busy(btn, false);
+        if (res.error) { message("signin-msg", friendly(res.error)); return; }
+        message("signin-msg", "");
+        $("si-password").value = "";
+      });
+    });
+
+    $("forgot").onclick = function () {
+      var email = $("si-email").value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { message("signin-msg", "Type your email address above first, then press \"Forgot password?\" again."); $("si-email").focus(); return; }
+      EC.sendPasswordReset(email).then(function (res) {
+        if (res.error) { message("signin-msg", friendly(res.error)); return; }
+        message("signin-msg", "If there's an account for " + email + ", we've emailed a link to choose a new password.", true);
+      });
+    };
+
+    // ----- Create account -----
+    $("signup-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = $("su-name").value.trim(), email = $("su-email").value.trim(), password = $("su-password").value;
+      if (!name) { message("signup-msg", "Please enter your name."); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { message("signup-msg", "Please enter a valid email address."); return; }
+      if (password.length < 8) { message("signup-msg", "Your password needs at least 8 characters."); return; }
+      if (!$("su-terms").checked) { message("signup-msg", "Please tick the box to agree to the Terms."); return; }
+      var btn = e.submitter || this.querySelector("[type=submit]");
+      busy(btn, true);
+      EC.signUp(email, password, name).then(function (res) {
+        busy(btn, false);
+        if (res.error) { message("signup-msg", friendly(res.error)); return; }
+        // Supabase hides whether an email is already registered: it returns no identities
+        if (res.data.user && res.data.user.identities && res.data.user.identities.length === 0) {
+          message("signup-msg", "There's already an account with that email. Try signing in instead.");
+          return;
+        }
+        $("signup-form").reset();
+        message("signup-msg", "✓ Nearly there! We've sent a confirmation link to " + email + ". Click it to finish creating your account (check your spam folder too).", true);
+      });
+    });
+
+    // ----- New password after "forgot password" -----
+    $("reset-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var pw = $("rs-password").value;
+      if (pw.length < 8) { message("reset-msg", "Your password needs at least 8 characters."); return; }
+      EC.setNewPassword(pw).then(function (res) {
+        if (res.error) { message("reset-msg", friendly(res.error)); return; }
+        recovering = false;
+        history.replaceState(null, "", "account.html");
+        $("banner").textContent = "✓ Your new password is saved.";
+        $("banner").hidden = false;
+        showViews(EC.user(), EC.profile());
+      });
+    });
+
+    // ----- Save profile -----
+    $("profile-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = $("pf-name").value.trim();
+      if (!name) { message("profile-msg", "Please enter your name."); $("pf-name").focus(); return; }
+      var area = $("pf-area").value;
+      var fields = {
+        name: name,
+        role: $("pf-role").value.trim(),
+        discipline: area || null,
+        location: $("pf-location").value.trim(),
+        skills: $("pf-skills").value.split(",").map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 20),
+        looking: $("pf-looking").value.trim(),
+        visible: $("pf-visible").checked
+      };
+      var btn = e.submitter || this.querySelector("[type=submit]");
+      busy(btn, true);
+      EC.saveProfile(fields).then(function (res) {
+        busy(btn, false);
+        if (res.error) { message("profile-msg", friendly(res.error)); return; }
+        if (area) save("discipline", area);
+        showDisciplineChip(currentDiscipline());
+        message("profile-msg", "✓ Profile saved.", true);
+      });
+    });
+
+    $("sign-out").onclick = function () {
+      EC.signOut().then(function () {
+        $("banner").textContent = "You're signed out.";
+        $("banner").hidden = false;
+      });
+    };
+
+    // ----- Delete account -----
+    $("delete-account").onclick = function () {
+      if ($("delete-confirm").value.trim().toUpperCase() !== "DELETE") {
+        message("delete-msg", "Type DELETE in the box first.");
+        return;
+      }
+      var btn = this;
+      busy(btn, true);
+      EC.deleteAccount().then(function (res) {
+        busy(btn, false);
+        if (res.error) { message("delete-msg", friendly(res.error)); return; }
+        $("delete-confirm").value = "";
+        $("banner").textContent = "Your account and everything you posted have been deleted.";
+        $("banner").hidden = false;
+      });
+    };
+  </script>
+</body>
+</html>

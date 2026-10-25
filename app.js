@@ -170,7 +170,24 @@ function addFooter() {
   footer.innerHTML = '<div class="founder"><span class="founder-label">Founder</span>' +
     "<strong>" + escapeHtml(FOUNDER.name) + "</strong>" +
     '<a href="mailto:' + escapeHtml(FOUNDER.email) + '">' + escapeHtml(FOUNDER.email) + "</a></div>" +
-    '<div class="meta">© ' + new Date().getFullYear() + " Engineer Connect</div>";
+    '<div class="meta footer-links"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a>' +
+    "<span>© " + new Date().getFullYear() + " Engineer Connect</span></div>";
   document.body.appendChild(footer);
 }
 addFooter();
+
+// ---------- "Sign in" / "My account" button in the top bar ----------
+function addAccountButton() {
+  var topbar = document.querySelector(".topbar");
+  if (!topbar || !window.EC || !EC.available) return;
+  var link = document.createElement("a");
+  link.className = "chip account-chip";
+  link.href = "account.html";
+  link.textContent = "Sign in";
+  if (/account\.html$/.test(location.pathname)) link.classList.add("current");
+  topbar.appendChild(link);
+  EC.onChange(function (user, profile) {
+    link.textContent = user ? "👤 " + ((profile && profile.name) || "My account") : "Sign in";
+  });
+}
+addAccountButton();
