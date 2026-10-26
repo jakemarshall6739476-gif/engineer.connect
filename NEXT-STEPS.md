@@ -20,8 +20,12 @@ https://jakemarshall6739476-gif.github.io/engineer.connect/
 
 ## Next (the 3-month growth plan)
 **Finish Month 1**
-1. **Sign-up emails:** Supabase's built-in email only sends a few an hour. Before inviting people, set up a free email service (for example Brevo, 300 emails a day) and enter its details in Supabase → Authentication → Emails → SMTP settings.
-2. Check that the hourly scheduled runs are happening: GitHub → Actions, look for runs triggered by "schedule".
+1. **Sign-up emails with Brevo (in progress, paused 26 October 2026).** Supabase's built-in email only sends a few an hour, so finish this before inviting people.
+   - ✅ Brevo account created (signed up with Google). The gmail sender is already verified.
+   - **To do, Step 3:** Brevo → your name (top right) → **SMTP & API** → **SMTP** tab. Note the server (`smtp-relay.brevo.com`), port (`587`) and Login (`…@smtp-brevo.com`). Click **Generate a new SMTP key** and name it `Supabase`. The key is a password: never share it, paste it only into Supabase.
+   - **To do, Step 4:** Supabase → **Authentication** → **Emails** → **SMTP Settings** → **Enable Custom SMTP**. Sender email: the gmail address. Sender name: `Engineer Connect`. Host and port as above. Username: the Brevo Login. Password: the SMTP key. Save. Then **Authentication** → **Rate Limits** → emails per hour: `100`.
+   - **To do, Step 5:** on the live site's Sign in page, type your email and press **Forgot password?**. An email from "Engineer Connect" should arrive (check spam).
+2. ✅ The hourly scheduled runs are working (141 successful by 26 October 2026).
 
 **Month 2: make it worth coming back to**
 - Private messages between connected engineers.
