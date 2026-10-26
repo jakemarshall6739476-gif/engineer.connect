@@ -34,7 +34,7 @@ https://jakemarshall6739476-gif.github.io/engineer.connect/
 - Safety: a Report button, an admin view to hide posts, and limits on posting speed.
 
 **Month 3: grow UK-wide**
-- Page titles and descriptions, `sitemap.xml`, LinkedIn preview cards, Google Search Console.
+- ✅ Done early (26 October 2026): page titles and descriptions, link-preview cards and share picture, site icons, `sitemap.xml`, Google Search Console verified (HTML tag on the home page, set in `tools/add_meta.py`). Check that the sitemap shows "Success" in Search Console → Sitemaps.
 - Cloudflare Web Analytics (free, no cookies). Needs the owner's token.
 - Launch: seed about 20 real ideas and jobs, invite 50 founding members, then post on LinkedIn and with student engineering societies.
 - Remove the "Early preview" note once there's real content.
