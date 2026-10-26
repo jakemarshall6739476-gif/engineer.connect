@@ -51,3 +51,13 @@ The site lives at https://jakemarshall6739476-gif.github.io/engineer.connect/
 - GitHub pauses the hourly job if the project has had no changes for 60 days. It sends an email;
   switch it back on from the Actions tab.
 - Something wrong online? Undo the change (or go back to an earlier commit) and push again.
+
+## Sharing and search (link previews, icons, Google)
+- Every page has a description, link-preview details (Open Graph) and icons between the
+  `<!-- share-and-search -->` markers in its `<head>`. They're written by `tools/add_meta.py`,
+  which also holds each page's title and description. Edit it there and run `py tools/add_meta.py .`
+- `og-image.png` is the picture shown when the link is shared; `favicon.svg`, `favicon-32.png` and
+  `apple-touch-icon.png` are the icons. `tools/make_images.py` draws them (needs the Pillow library).
+- `sitemap.xml` lists the pages for Google (submit it in Google Search Console).
+- If the site moves to its own domain, change BASE in `tools/add_meta.py`, re-run it, and update
+  `sitemap.xml`; a `robots.txt` can then go at the top of the new domain.
