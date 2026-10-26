@@ -30,6 +30,9 @@ PAGES = {
 
 START, END = "  <!-- share-and-search -->\n", "  <!-- /share-and-search -->\n"
 
+# Google Search Console ownership check (home page only). Public by design.
+GOOGLE_VERIFICATION = "HjWlb3Le0Ghd6_n8KcNzzG5kEaBYjWJvJfnzzTk3fz4"
+
 
 def esc(s):
     return s.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;")
@@ -58,6 +61,7 @@ for page, (title, desc) in PAGES.items():
         '  <meta property="og:image:height" content="630">\n'
         '  <meta property="og:image:alt" content="Engineer Connect: where engineers build together">\n'
         '  <meta name="twitter:card" content="summary_large_image">\n'
+        + (f'  <meta name="google-site-verification" content="{GOOGLE_VERIFICATION}">\n' if page == "index.html" else "")
         + END
     )
     html = re.sub(re.escape(START) + ".*?" + re.escape(END), "", html, flags=re.S)
